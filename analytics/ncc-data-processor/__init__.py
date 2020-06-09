@@ -60,6 +60,13 @@ def get_footfall_data(sensors, api_url):
         result.append(out)
     return(result)
 
+def get_carpark_business(current_occupancy):
+    if current_occupancy < 35:
+        return(BUSYNESS_LEVELS[0])
+    elif current_occupancy < 70:
+        return(BUSYNESS_LEVELS[1])
+    return(BUSYNESS_LEVELS[2])
+
 def extract_carpark_data(response, carparks):
     tmp = json.loads(response)
     out = []
@@ -70,7 +77,7 @@ def extract_carpark_data(response, carparks):
             carpark_out['timestamp'] = item['feed'][0]['timeseries'][0]['latest']['time'] # ToDo parse timestamp
             carpark_out['capacity'] = item['feed'][0]['meta']['totalSpaces']
             carpark_out['occupancy'] = item['feed'][0]['timeseries'][0]['latest']['value'] # ToDo double check this is the occupancy
-            carpark_out['status'] = BUSYNESS_LEVELS[1] # todo set the switch on % occupancy
+            carpark_out['status'] = get_carpark_business(carpark_out['occupancy'] / carpark_out['capacity']) 
             out.append(carpark_out)
     return(out)
 
@@ -84,15 +91,15 @@ def get_carpark_data(carparks, api_url):
 
 def format_output(footfall, carparks, response_time):
     out = dict()
-    out['timestamp'] = str(datetime.datetime.now().time())
+    out['timestamp'] = str(datetime.datetime.now())
     out['response_time_ms'] = response_time.microseconds 
     out['footfall'] = footfall
     out['carparks'] = carparks
     return(out)
 
 
-# start_time = datetime.datetime.now()
-# footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
-# carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
-# out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
-# print(json.dumps(out))    
+start_time = datetime.datetime.now()
+footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
+carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
+out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
+print(json.dumps(out))    

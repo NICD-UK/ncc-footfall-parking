@@ -15,8 +15,8 @@ Example output:
 
 ```json
 {
-    "timestamp": "21:21:38.374589",
-    "response_time_ms": 280503,
+    "timestamp": "2020-06-09 21:42:38.820476",
+    "response_time_ms": 683372,
     "footfall": [{
         "sensor_name": "PER_PEOPLE_NC_B6324B1",
         "measurement": -1,
@@ -24,14 +24,14 @@ Example output:
     }, {
         "sensor_name": "PER_PEOPLE_NORTHUMERLAND_LINE_SHORT_DISTANCE_HEAD_6",
         "measurement": -1,
-        "status": "busy"
+        "status": "average"
     }],
     "carparks": [{
         "name": "Car park at Eldon Garden",
-        "timestamp": "2020-06-09T20:21:14.000Z",
+        "timestamp": "2020-06-09T20:42:04.000Z",
         "capacity": 449,
-        "occupancy": 20,
-        "status": "average"
+        "occupancy": 19,
+        "status": "quiet"
     }]
 }
 ```
