@@ -23,7 +23,10 @@ def main(mytimer: func.TimerRequest) -> None:
         footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 
         # pull the car parks data
-        carparks_out = get_carpark_data()
+        carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
+
+        # join into a single output
+
 
         # persist to historical blob
 
@@ -65,18 +68,13 @@ def extract_carpark_data(response, carparks):
             out.append(carpark_out)
     return(out)
 
-
 def get_carpark_data(carparks, api_url):
-    result = []
     try:
         contents = urllib.request.urlopen(api_url).read() # not ideal !pagination!
     except HTTPError as e:
         logging.error("UO API call failed: " + e)
-    
-    for carpark in carparks:  
-        out = extract_carpark_data(contents, carpark)
-        result.append(out)
-    return(result)    
+    out = extract_carpark_data(contents, carparks)
+    return(out)    
 
 # print(get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL))
-print(get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL))
+# print(get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL))
