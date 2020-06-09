@@ -1,0 +1,50 @@
+# This workflow will do a clean install of npm dependencies, build the distribution code and deploy to Azure Storage
+
+name: Build & Deploy
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: Install Dependencies
+      run: npm install
+    - name: Run Build
+      run: npm run build
+    - name: Upload Build
+      uses: actions/upload-artifact@v1
+      with:
+        name: website-static
+        path: ./build
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    steps: 
+    - uses: actions/checkout@v2
+    - uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.100'
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v1
+      with:
+        name: website-static
+    - name: Check Directory
+      run: ls
+    - uses: lauchacarro/Azure-Storage-Action@master
+      with:
+        enabled-static-website: 'true'
+        folder: website-static
+        index-document: 'index.html'
+        error-document: 'index.html'
+        connection-string: ${{ secrets.CONNECTION_STRING }}
