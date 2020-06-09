@@ -11,4 +11,8 @@ npm-debug.log
 yarn-error.log
 yarn.lock
 .yarnclean
-.vscode
+
+.python_packages
+__pycache__
+.venv
+analytics/ncc-data-processor/.vscode
