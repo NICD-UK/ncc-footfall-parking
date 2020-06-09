@@ -24,7 +24,7 @@ def main(mytimer: func.TimerRequest) -> None:
         # start the clock
         start_time = datetime.datetime.now()
 
-        # pull all street counter info
+        # pull all footfall data
         footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 
         # pull the car parks data
