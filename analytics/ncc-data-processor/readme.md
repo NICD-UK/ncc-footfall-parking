@@ -7,8 +7,11 @@ On Timer tick (settings in `function.json` file under `schedule` entry) followin
 * formats the output.
 
 ToDo:
+* find where is actual footfall measurement,
+* set the thresholds for footfall busyness levels,
 * persist to blob storage (historical file),
 * overwrite the latest blob file,   
+* deploy as a azure function,
 * other improvements (search for ToDo in the code).
 
 Example output:
