@@ -7,6 +7,8 @@ from urllib.error import HTTPError
 
 import azure.functions as func
 
+CARPARKS_NAMES = ['Car park at Eldon Garden']
+CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&page=3' # page 3 has Eldon Garden
 FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NC_B6324B1', 'PER_PEOPLE_NORTHUMERLAND_LINE_SHORT_DISTANCE_HEAD_6']
 FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/json/"
 
@@ -21,6 +23,7 @@ def main(mytimer: func.TimerRequest) -> None:
         footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 
         # pull the car parks data
+        carparks_out = get_carpark_data()
 
         # persist to historical blob
 
@@ -47,7 +50,33 @@ def get_footfall_data(sensors, api_url):
         except HTTPError as e:
             logging.error("UO API call failed: " + e)
         result.append(out)
-        print(out)
     return(result)
 
-print(get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL))
+def extract_carpark_data(response, carparks):
+    tmp = json.loads(response)
+    out = []
+    for item in tmp['items']:
+        if item['name'] in carparks:
+            carpark_out = dict()
+            carpark_out['name'] = item['name']
+            carpark_out['timestamp'] = item['feed'][0]['timeseries'][0]['latest']['time']
+            carpark_out['capacity'] = item['feed'][0]['meta']['totalSpaces']
+            carpark_out['occupancy'] = item['feed'][0]['timeseries'][0]['latest']['value'] # ToDo double check this is the occupancy
+            out.append(carpark_out)
+    return(out)
+
+
+def get_carpark_data(carparks, api_url):
+    result = []
+    try:
+        contents = urllib.request.urlopen(api_url).read() # not ideal !pagination!
+    except HTTPError as e:
+        logging.error("UO API call failed: " + e)
+    
+    for carpark in carparks:  
+        out = extract_carpark_data(contents, carpark)
+        result.append(out)
+    return(result)    
+
+# print(get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL))
+print(get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL))
