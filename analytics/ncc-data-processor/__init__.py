@@ -74,7 +74,8 @@ def extract_carpark_data(response, carparks):
         if item['name'] in carparks:
             carpark_out = dict()
             carpark_out['name'] = item['name']
-            carpark_out['timestamp'] = item['feed'][0]['timeseries'][0]['latest']['time'] # ToDo parse timestamp
+            ts = item['feed'][0]['timeseries'][0]['latest']['time'] # get timestamp
+            carpark_out['timestamp'] = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z').astimezone().isoformat() # parse and format
             carpark_out['capacity'] = item['feed'][0]['meta']['totalSpaces']
             carpark_out['occupancy'] = item['feed'][0]['timeseries'][0]['latest']['value'] # ToDo double check this is the occupancy
             carpark_out['status'] = get_carpark_business(carpark_out['occupancy'] / carpark_out['capacity']) 
@@ -91,7 +92,7 @@ def get_carpark_data(carparks, api_url):
 
 def format_output(footfall, carparks, response_time):
     out = dict()
-    out['timestamp'] = str(datetime.datetime.now())
+    out['timestamp'] = str(datetime.datetime.now().astimezone().isoformat())
     out['response_time_ms'] = response_time.microseconds 
     out['footfall'] = footfall
     out['carparks'] = carparks
@@ -102,4 +103,4 @@ start_time = datetime.datetime.now()
 footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
 out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
-print(json.dumps(out))    
+print(json.dumps(out))
