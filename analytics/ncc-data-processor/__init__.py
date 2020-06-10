@@ -12,7 +12,7 @@ CARPARKS_NAMES = ['Car park at Eldon Garden']
 CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&page=3' # page 3 has Eldon Garden
 FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0', 'PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1']
 FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime=202006102000&endtime=202006102100" # todo from time, until time
-BUSYNESS_LEVELS = ['quiet', 'average', 'busy']
+ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
 
 def main(mytimer: func.TimerRequest) -> None:
     utc_timestamp = datetime.datetime.utcnow().replace(
@@ -69,12 +69,12 @@ def get_footfall_data(sensors, api_url):
         result.append(out)
     return(result)
 
-def get_carpark_business(current_occupancy):
-    if current_occupancy < 35:
-        return(BUSYNESS_LEVELS[0])
-    elif current_occupancy < 70:
-        return(BUSYNESS_LEVELS[1])
-    return(BUSYNESS_LEVELS[2])
+def get_carpark_activity(current_occupancy):
+    if current_occupancy < 50:
+        return(ACTIVITY_LEVELS[0])
+    elif current_occupancy < 75:
+        return(ACTIVITY_LEVELS[1])
+    return(ACTIVITY_LEVELS[2])
 
 def extract_carpark_data(response, carparks):
     tmp = json.loads(response)
@@ -87,7 +87,7 @@ def extract_carpark_data(response, carparks):
             carpark_out['timestamp'] = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z').astimezone().isoformat() # parse and format
             carpark_out['capacity'] = item['feed'][0]['meta']['totalSpaces']
             carpark_out['occupancy'] = item['feed'][0]['timeseries'][0]['latest']['value'] # ToDo double check this is the occupancy
-            carpark_out['status'] = get_carpark_business(carpark_out['occupancy'] / carpark_out['capacity']) 
+            carpark_out['status'] = get_carpark_activity(carpark_out['occupancy'] * 100 / carpark_out['capacity'])  
             out.append(carpark_out)
     return(out)
 
