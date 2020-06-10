@@ -6,21 +6,24 @@ import carparks from './carparks';
 
 const data = {};
 
-$.ajax({
-    method: "GET",
-    cache: false,
-    url: 'https://nccfootfallparking.blob.core.windows.net/api-data/latest.json',
-    success: function(response) {
-        data = response;
-        console.log(data);
-    },
-    error: function(error) {
-        console.error(error);
-    }
-});
+// $.ajax({
+//     method: "GET",
+//     cache: false,
+//     url: 'https://nccfootfallparking.blob.core.windows.net/api-data/latest.json',
+//     success: function(response) {
+//         data = response;
+//         console.log(data);
+//     },
+//     error: function(error) {
+//         console.error(error);
+//     }
+// });
 
 // Run page dependant code
 switch (window.location.pathname) {
+    case '/':
+        map();
+        break;
     case '/index.html':
         map();
         break;
