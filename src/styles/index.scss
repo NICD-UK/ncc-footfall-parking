@@ -95,18 +95,21 @@ body {
   }
 }
 
-#aboutModal .partners {
-  .row {
-    margin: 4rem 0;
+#aboutModal {
+  width: 100vw !important;
 
-    div {
-    text-align: center;
+  .partners {
 
-      img {
-        display: inline-block;
-        max-width: 80%;
-        max-height: 8rem;
-      }
+    .col-lg {
+      margin: 2rem 0;
+      text-align: center;
+
+        img {
+          display: inline-block;
+          max-width: 80%;
+          max-height: 8rem;
+        }
+      
     }
   }
 }
@@ -118,6 +121,10 @@ body {
 @media (min-width: 768px) {
   #sidebar-wrapper {
     margin-left: 0;
+
+    .sidebar-heading {
+      margin-top: 0;
+    }
   }
 
   #map {
