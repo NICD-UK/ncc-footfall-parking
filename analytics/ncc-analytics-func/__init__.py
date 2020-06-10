@@ -5,7 +5,6 @@ import random
 import urllib.request
 from urllib.error import HTTPError
 
-
 import azure.functions as func
 
 CARPARKS_NAMES = ['Car park at Eldon Garden']
@@ -38,9 +37,6 @@ def main(mytimer: func.TimerRequest) -> None:
         # persist to historical blob
 
         # overwrite latest
-
-
-    logging.info('Python timer trigger function ran at %s', utc_timestamp)
 
 def extract_footfall(sensor_name, response):
     tmp = json.loads(response)
@@ -112,14 +108,10 @@ def get_city_activity(footfall):
 def format_output(footfall, carparks, response_time):
     out = dict()
     out['timestamp'] = str(datetime.datetime.now().astimezone().isoformat())
-    out['response_time_ms'] = response_time.microseconds 
+    out['response_time_us'] = response_time.microseconds 
     out['city_state'] = get_city_activity(footfall)
     out['footfall'] = footfall
     out['carparks'] = carparks
     return(out)
 
-start_time = datetime.datetime.now()
-footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
-carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
-out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
-print(json.dumps(out))
+    logging.info('Python timer trigger function ran at %s', utc_timestamp)

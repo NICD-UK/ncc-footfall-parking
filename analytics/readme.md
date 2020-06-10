@@ -17,7 +17,7 @@ Example output:
 ```json
 {
     "timestamp": "2020-06-10T23:06:03.942126+01:00",
-    "response_time_ms": 306687,
+    "response_time_us": 306687,
     "city_state": "quiet",
     "footfall": [{
         "sensor_name": "PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0",
