@@ -26,12 +26,17 @@ states.forEach(function(state){
     });
 });
 
+let currentCapacity = 0;
+
 carparks.forEach(function(carpark){
     if(carpark.location.length === 2) {
+        currentCapacity += carpark.capacity;
         L.marker(carpark.location, { icon: markers.busy }).addTo(map)
         .bindPopup('There are only ' + carpark.capacity + ' spaces remaing at ' + carpark.name + '.');
     }
 });
+
+$('#currentCapacity').text(currentCapacity);
 
 $("#menu-toggle").click(function(e) {
     e.preventDefault();
