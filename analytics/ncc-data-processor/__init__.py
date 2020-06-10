@@ -10,8 +10,8 @@ import azure.functions as func
 
 CARPARKS_NAMES = ['Car park at Eldon Garden']
 CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&page=3' # page 3 has Eldon Garden
-FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NC_B6324B1', 'PER_PEOPLE_NORTHUMERLAND_LINE_SHORT_DISTANCE_HEAD_6']
-FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/json/"
+FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0', 'PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1']
+FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime=202006102000&endtime=202006102100" # todo from time, until time
 BUSYNESS_LEVELS = ['quiet', 'average', 'busy']
 
 def main(mytimer: func.TimerRequest) -> None:
@@ -33,6 +33,8 @@ def main(mytimer: func.TimerRequest) -> None:
         # join into a single output
         out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
 
+        # sanity check
+
         # persist to historical blob
 
         # overwrite latest
@@ -40,12 +42,19 @@ def main(mytimer: func.TimerRequest) -> None:
 
     logging.info('Python timer trigger function ran at %s', utc_timestamp)
 
-def extract_footfall(response):
+def extract_footfall(sensor_name, response):
     tmp = json.loads(response)
+    total_people_count = 0
+    for record in tmp['sensors'][0]['data']['Walking North']:
+        total_people_count += record['Value']
+    for record in tmp['sensors'][0]['data']['Walking South']:
+        total_people_count += record['Value']
+    number_of_datapoints = len(tmp['sensors'][0]['data']['Walking North']) + len(tmp['sensors'][0]['data']['Walking South'])
+    average_people_count = total_people_count / number_of_datapoints
     out = dict()
-    out['sensor_name'] = tmp['sensors'][0]['Sensor Name']
-    out['measurement'] = -1 # where is actual measurement in the result?
-    out['status'] = random.choice(BUSYNESS_LEVELS) # ToDo some clever switch
+    out['sensor_name'] = sensor_name
+    out['number_of_datapoints'] = number_of_datapoints 
+    out['measurement'] = round(average_people_count, 1)
     return(out)
 
 def get_footfall_data(sensors, api_url):
@@ -54,7 +63,7 @@ def get_footfall_data(sensors, api_url):
         sensor_url = api_url.format(sensor_name = sensor)
         try:
             contents = urllib.request.urlopen(sensor_url).read()
-            out = extract_footfall(contents)
+            out = extract_footfall(sensor, contents)
         except HTTPError as e:
             logging.error("UO API call failed: " + e)
         result.append(out)
@@ -97,7 +106,6 @@ def format_output(footfall, carparks, response_time):
     out['footfall'] = footfall
     out['carparks'] = carparks
     return(out)
-
 
 start_time = datetime.datetime.now()
 footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
