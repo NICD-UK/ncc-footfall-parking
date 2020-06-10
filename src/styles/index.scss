@@ -11,15 +11,30 @@ body {
   min-width: 100vw;
 }
 
+.car-park-marker {
+  text-align: center;
+  line-height: 30px;
+
+  i {
+    font-size: 30px;
+
+    &.busy {
+      color: #dc3545;
+    }
+  }
+}
+
 #city-status {
   position: absolute;
   left: 2rem;
   bottom: 2rem;
   right: 2rem;
   z-index: 500;
+  text-align: center;
 
   i {
-    font-size: inherit;
+    font-size: 36px;
+    display: block;
   }
 }
 
@@ -105,5 +120,11 @@ body {
 
   #city-status {
     left: 17rem;
+    text-align: left;
+
+    i {
+      display: inline;
+      font-size: inherit;
+    }
   }
 }
