@@ -54,7 +54,7 @@ def extract_footfall(sensor_name, response):
     out = dict()
     out['sensor_name'] = sensor_name
     out['number_of_datapoints'] = number_of_datapoints 
-    out['measurement'] = round(average_people_count, 1)
+    out['average_people_count'] = round(average_people_count, 1)
     return(out)
 
 def get_footfall_data(sensors, api_url):
@@ -87,7 +87,7 @@ def extract_carpark_data(response, carparks):
             carpark_out['timestamp'] = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z').astimezone().isoformat() # parse and format
             carpark_out['capacity'] = item['feed'][0]['meta']['totalSpaces']
             carpark_out['occupancy'] = item['feed'][0]['timeseries'][0]['latest']['value'] # ToDo double check this is the occupancy
-            carpark_out['status'] = get_carpark_activity(carpark_out['occupancy'] * 100 / carpark_out['capacity'])  
+            carpark_out['state'] = get_carpark_activity(carpark_out['occupancy'] * 100 / carpark_out['capacity'])  
             out.append(carpark_out)
     return(out)
 
@@ -99,10 +99,21 @@ def get_carpark_data(carparks, api_url):
     out = extract_carpark_data(contents, carparks)
     return(out)    
 
+def get_city_activity(footfall):
+    total_footfall = 0
+    for record in footfall:
+        total_footfall += record['average_people_count']
+    if total_footfall < 35:
+        return(ACTIVITY_LEVELS[0])
+    elif total_footfall < 100:
+        return(ACTIVITY_LEVELS[1])
+    return(ACTIVITY_LEVELS[2])
+
 def format_output(footfall, carparks, response_time):
     out = dict()
     out['timestamp'] = str(datetime.datetime.now().astimezone().isoformat())
     out['response_time_ms'] = response_time.microseconds 
+    out['city_state'] = get_city_activity(footfall)
     out['footfall'] = footfall
     out['carparks'] = carparks
     return(out)
