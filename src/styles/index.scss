@@ -1,6 +1,7 @@
 @charset "utf-8";
 @import "../../node_modules/bootstrap/scss/bootstrap.scss";
 @import "../../node_modules/leaflet/dist/leaflet.css";
+@import "hamburger.css";
 
 body {
   overflow-x: hidden;
@@ -12,7 +13,7 @@ body {
 
 #city-status {
   position: absolute;
-  left: 17rem;
+  left: 2rem;
   bottom: 2rem;
   right: 2rem;
   z-index: 500;
@@ -30,8 +31,10 @@ body {
   -moz-transition: margin .25s ease-out;
   -o-transition: margin .25s ease-out;
   transition: margin .25s ease-out;
+  z-index: 600;
 
   .sidebar-toggle {
+    background-color: #dc3545;
     position: relative;
     left: 15rem;
     top: 1rem;
@@ -66,6 +69,22 @@ body {
   }
 }
 
+#aboutModal .partners {
+  .row {
+    margin: 4rem 0;
+
+    div {
+    text-align: center;
+
+      img {
+        display: inline-block;
+        max-width: 80%;
+        max-height: 8rem;
+      }
+    }
+  }
+}
+
 #wrapper.toggled #sidebar-wrapper {
   margin-left: 0;
 }
@@ -82,5 +101,9 @@ body {
 
   #wrapper.toggled #sidebar-wrapper {
     margin-left: -15rem;
+  }
+
+  #city-status {
+    left: 17rem;
   }
 }
