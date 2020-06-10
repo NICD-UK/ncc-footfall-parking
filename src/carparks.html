@@ -50,10 +50,21 @@
     <!-- /#sidebar-wrapper -->
 
     <!-- Page Content -->
-    <div id="map"></div>
-    <div class="alert alert-danger" role="alert" id="city-status">
-      <i class="feather icon-alert-triangle"></i><strong>&nbsp;The city centre is busier than usual, we advise delaying your journey.</strong>
+    <div class="container-fluid carpark-section">
+      <div class="row">
+        <div class="col-lg">
+          <header>
+            <h4><span class="currentCapacityCount"></span> Parking Spaces</h4>
+          </header>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg">
+          <div id="carpark-list" class="list-group"></div>
+        </div>
+      </div>
     </div>
+    
     <!-- /#page-content-wrapper -->
 
   </div>

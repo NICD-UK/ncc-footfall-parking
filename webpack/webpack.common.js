@@ -21,8 +21,13 @@ module.exports = {
     new CleanWebpackPlugin(),
     new CopyWebpackPlugin({ patterns: [{ from: Path.resolve(__dirname, '../public'), to: 'public' }] }),
     new HtmlWebpackPlugin({
+      filename: 'index.html',
       template: Path.resolve(__dirname, '../src/index.html'),
     }),
+    new HtmlWebpackPlugin({
+      filename: 'carparks.html',
+      template: Path.resolve(__dirname, '../src/carparks.html'),
+    })
   ],
   resolve: {
     alias: {
