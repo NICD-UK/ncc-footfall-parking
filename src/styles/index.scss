@@ -38,6 +38,17 @@ body {
   }
 }
 
+.carpark-section {
+  header {
+    padding: 2rem;
+    text-align: center;
+  }
+
+  .carpark-list-item span.badge {
+    padding: 0.6em;
+  }
+}
+
 #sidebar-wrapper {
   position: relative;
   min-height: 100vh;

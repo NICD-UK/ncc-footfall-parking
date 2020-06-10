@@ -27,7 +27,7 @@
       </div>
       <div class="list-group list-group-flush">
         <a href="index.html" class="list-group-item list-group-item-action bg-light">Map</a>
-        <a href="carparks.html" class="list-group-item list-group-item-action bg-light d-flex justify-content-between align-items-center">Car Parks<span id="currentCapacity" class="badge badge-danger badge-pill"></span></a>
+        <a href="carparks.html" class="list-group-item list-group-item-action bg-light d-flex justify-content-between align-items-center">Car Parks<span class="currentCapacityCount badge badge-danger badge-pill"></span></a>
         <a href="#" class="list-group-item list-group-item-action bg-light">Council Guidance</a>
         <button type="button" class="btn btn-link list-group-item list-group-item-action bg-light" data-toggle="modal" data-target="#aboutModal">About</button>
       </div>
@@ -38,10 +38,21 @@
     <!-- /#sidebar-wrapper -->
 
     <!-- Page Content -->
-    <div id="map"></div>
-    <div class="alert alert-danger" role="alert" id="city-status">
-      <i class="feather icon-alert-triangle"></i><strong>&nbsp;The city centre is busier than usual, we advise delaying your journey.</strong>
+    <div class="container-fluid carpark-section">
+      <div class="row">
+        <div class="col-lg">
+          <header>
+            <h4><span class="currentCapacityCount"></span> Parking Spaces</h4>
+          </header>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg">
+          <div id="carpark-list" class="list-group"></div>
+        </div>
+      </div>
     </div>
+    
     <!-- /#page-content-wrapper -->
 
   </div>
