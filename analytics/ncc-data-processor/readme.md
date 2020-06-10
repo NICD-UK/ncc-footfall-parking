@@ -7,34 +7,33 @@ On Timer tick (settings in `function.json` file under `schedule` entry) followin
 * formats the output.
 
 ToDo:
-* find where is actual footfall measurement,
-* set the thresholds for footfall busyness levels,
+* deploy as a azure function,
 * persist to blob storage (historical file),
 * overwrite the latest blob file,   
-* deploy as a azure function,
 * other improvements (search for ToDo in the code).
 
 Example output:
 
 ```json
 {
-    "timestamp": "2020-06-09 21:42:38.820476",
-    "response_time_ms": 683372,
+    "timestamp": "2020-06-10T23:06:03.942126+01:00",
+    "response_time_ms": 306687,
+    "city_state": "quiet",
     "footfall": [{
-        "sensor_name": "PER_PEOPLE_NC_B6324B1",
-        "measurement": -1,
-        "status": "quiet"
+        "sensor_name": "PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0",
+        "number_of_datapoints": 22,
+        "average_people_count": 1.7
     }, {
-        "sensor_name": "PER_PEOPLE_NORTHUMERLAND_LINE_SHORT_DISTANCE_HEAD_6",
-        "measurement": -1,
-        "status": "average"
+        "sensor_name": "PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1",
+        "number_of_datapoints": 22,
+        "average_people_count": 1.5
     }],
     "carparks": [{
         "name": "Car park at Eldon Garden",
-        "timestamp": "2020-06-09T20:42:04.000Z",
+        "timestamp": "2020-06-10T21:59:14+01:00",
         "capacity": 449,
-        "occupancy": 19,
-        "status": "quiet"
+        "occupancy": 17,
+        "state": "quiet"
     }]
 }
 ```
