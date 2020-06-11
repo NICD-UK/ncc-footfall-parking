@@ -82,7 +82,6 @@ def extract_carpark_data(response, carparks):
     tmp = json.loads(response)
     carpark_out = dict()
     if len(tmp['items']) > 0:
-        import pdb; pdb.set_trace()
         carpark_out['name'] = tmp['items'][0]['meta']['name']
         ts = tmp['items'][0]['feed'][0]['timeseries'][0]['latest']['time'] # get timestamp
         carpark_out['timestamp'] = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z').astimezone().isoformat() # parse and format
