@@ -19,7 +19,11 @@ FILE_NAME_LATEST_CITY_STATE = "latest_city_state.json"
 FILE_NAME_LATEST_CAR_PARKS = "latest_car_parks.json"
 FILE_NAME_CREDENTIALS = "settings.json"
 
-logging.info("It is the beginning, is it?")
+# logging
+logging.basicConfig(format='%(asctime)s %(funcName)s [%(lineno)d] %(message)s', level=logging.DEBUG)
+
+# start
+logging.info('It is the beginning, is it?')
 
 # load credentials/settings
 with open(FILE_NAME_CREDENTIALS, 'r') as fIn:
@@ -27,7 +31,7 @@ with open(FILE_NAME_CREDENTIALS, 'r') as fIn:
 logging.debug("Credentials loaded.")
 
 def extract_footfall(sensor_name, response):
-    print("Extracting.")
+    logging.debug(f"{sensor_name};{response}")
     tmp = json.loads(response)
     out = dict()
     total_people_count = 0
@@ -50,6 +54,7 @@ def extract_footfall(sensor_name, response):
     return(out)
 
 def get_footfall_data(sensors, api_url):
+    logging.debug(f"{sensors};{api_url}")
     result = []
     for sensor in sensors:
         time_now = datetime.datetime.now()
@@ -65,6 +70,7 @@ def get_footfall_data(sensors, api_url):
     return(result)
 
 def get_carpark_activity(current_occupancy): # todo recode for easier mod
+    logging.debug(f"{current_occupancy}")
     if current_occupancy < 50:
         return(ACTIVITY_LEVELS[0])
     elif current_occupancy < 75:
@@ -72,6 +78,7 @@ def get_carpark_activity(current_occupancy): # todo recode for easier mod
     return(ACTIVITY_LEVELS[2])
 
 def extract_carpark_data(response, carparks):
+    logging.debug(f"{response};{carparks}")
     tmp = json.loads(response)
     out = []
     for item in tmp['items']:
@@ -87,6 +94,7 @@ def extract_carpark_data(response, carparks):
     return(out)
 
 def get_carpark_data(carparks, api_url):
+    logging.debug(f"{carparks};{api_url}")
     try:
         contents = urllib.request.urlopen(api_url).read() # not ideal !pagination!
     except HTTPError as e:
@@ -95,6 +103,7 @@ def get_carpark_data(carparks, api_url):
     return(out)    
 
 def get_city_activity(footfall): # todo record for easier mod
+    logging.debug(f"{footfall}")
     total_footfall = 0
     for record in footfall:
         # check if something fell over
@@ -109,6 +118,7 @@ def get_city_activity(footfall): # todo record for easier mod
     return(ACTIVITY_LEVELS[2])
 
 def format_output(footfall, carparks, response_time):
+    logging.debug(f"{footfall},{carparks},{response_time}")
     out = dict()
     out['timestamp'] = str(datetime.datetime.now().astimezone().isoformat())
     out['response_time_us'] = response_time.microseconds 
@@ -154,4 +164,5 @@ blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAM
 with open(local_file_name, "rb") as data:
     blob_client.upload_blob(data, overwrite = True)
 
-print(out)
+logging.info(out)
+logging.info(f"It is done.")    
