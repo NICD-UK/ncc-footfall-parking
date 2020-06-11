@@ -8,11 +8,11 @@ import urllib.request
 from azure.storage.blob import BlobServiceClient
 from urllib.error import HTTPError
 
-CARPARKS_NAMES = ['Car park at Eldon Garden']
-CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&page=3' # page 3 has Eldon Garden
+CARPARKS_NAMES = ['Eldon%20Square']
+CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&name="{car_park}"'
 FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0', 'PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1']
 FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime={start_time}&endtime={end_time}" 
-FOOTFALL_TIME_WINDOW_MINUTES = 60 # RAISE at next meet-up
+FOOTFALL_TIME_WINDOW_MINUTES = 30 # RAISE at next meet-up
 ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
 
 FILE_NAME_LATEST_CITY_STATE = "latest_city_state.json"
@@ -71,7 +71,7 @@ def get_footfall_data(sensors, api_url):
 
 def get_carpark_activity(current_occupancy): # todo recode for easier mod
     logging.debug(f"{current_occupancy}")
-    if current_occupancy < 50:
+    if current_occupancy < 35:
         return(ACTIVITY_LEVELS[0])
     elif current_occupancy < 75:
         return(ACTIVITY_LEVELS[1])
@@ -80,26 +80,30 @@ def get_carpark_activity(current_occupancy): # todo recode for easier mod
 def extract_carpark_data(response, carparks):
     logging.debug(f"{response};{carparks}")
     tmp = json.loads(response)
-    out = []
-    for item in tmp['items']:
-        if item['name'] in carparks:
-            carpark_out = dict()
-            carpark_out['name'] = item['name']
-            ts = item['feed'][0]['timeseries'][0]['latest']['time'] # get timestamp
-            carpark_out['timestamp'] = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z').astimezone().isoformat() # parse and format
-            carpark_out['capacity'] = item['feed'][0]['meta']['totalSpaces']
-            carpark_out['occupancy'] = item['feed'][0]['timeseries'][0]['latest']['value'] # ToDo double check this is the occupancy
-            carpark_out['state'] = get_carpark_activity(carpark_out['occupancy'] * 100 / carpark_out['capacity'])  
-            out.append(carpark_out)
-    return(out)
+    carpark_out = dict()
+    if len(tmp['items']) > 0:
+        import pdb; pdb.set_trace()
+        carpark_out['name'] = tmp['items'][0]['meta']['name']
+        ts = tmp['items'][0]['feed'][0]['timeseries'][0]['latest']['time'] # get timestamp
+        carpark_out['timestamp'] = datetime.datetime.strptime(ts, '%Y-%m-%dT%H:%M:%S.%f%z').astimezone().isoformat() # parse and format
+        carpark_out['capacity'] = tmp['items'][0]['feed'][0]['meta']['totalSpaces']
+        carpark_out['occupancy'] = tmp['items'][0]['feed'][0]['timeseries'][0]['latest']['value']
+        carpark_out['reserved_bays'] = 0 # todo update once we know
+        carpark_out['free_spaces'] = carpark_out['capacity'] - carpark_out['occupancy'] - carpark_out['reserved_bays']
+        carpark_out['state'] = get_carpark_activity(carpark_out['occupancy'] * 100 / carpark_out['capacity'])  
+    return(carpark_out)
 
 def get_carpark_data(carparks, api_url):
     logging.debug(f"{carparks};{api_url}")
-    try:
-        contents = urllib.request.urlopen(api_url).read() # not ideal !pagination!
-    except HTTPError as e:
-        logging.error("UO API call failed: " + e)
-    out = extract_carpark_data(contents, carparks)
+    out = []
+    for carpark in carparks:
+        tmp_url = api_url.format(car_park = carpark)
+        logging.debug(tmp_url)
+        try:
+            contents = urllib.request.urlopen(tmp_url).read() 
+        except HTTPError as e:
+            logging.error("UO API call failed: " + e)
+        out.append(extract_carpark_data(contents, carpark))
     return(out)    
 
 def get_city_activity(footfall): # todo record for easier mod
@@ -137,14 +141,13 @@ def format_city_state(footfall, response_time):
     out['footfall'] = footfall
     return(out)
 
+# ToDo - put everything into classes; tidy-up this mess
+# CITY STATE
 # start the clock
 start_time = datetime.datetime.now()
 
 # pull all footfall data
 footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
-
-# pull the car parks data
-carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
 
 # persist city state
 file_name = f"ncc-city-state-{datetime.datetime.now().isoformat()}.json".replace(':','-')
@@ -170,5 +173,39 @@ if len(footfall_out[0]) > 0:
     # upload to container
     with open(local_file_name, "rb") as data:
         blob_client.upload_blob(data, overwrite = True)
+
+logging.info(footfall_out)
+
+# CAR PARKS
+# re-start the clock for car parks
+start_time = datetime.datetime.now()
+
+# pull the car parks data
+carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
+print(carpark_out)
+# # persist car parks
+# file_name = f"ncc-car-parks-{datetime.datetime.now().isoformat()}.json".replace(':','-')
+# local_file_name = "out" + os.sep + file_name
+
+# # local copy
+# with open(local_file_name, 'w') as fOut:
+#     fOut.write(json.dumps(format_city_state(footfall_out, datetime.datetime.now() - start_time)))
+
+# # blob storage client historical
+# blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
+# blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/{file_name}")
+
+# # upload to container
+# with open(local_file_name, "rb") as data:
+#     blob_client.upload_blob(data)
+
+# # only overwrite the latest file if there is at least one data sample
+# if len(footfall_out[0]) > 0:
+#     # overwrite latest city state
+#     blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CITY_STATE)
+
+#     # upload to container
+#     with open(local_file_name, "rb") as data:
+#         blob_client.upload_blob(data, overwrite = True)
 
 logging.info(f"It is done.")    
