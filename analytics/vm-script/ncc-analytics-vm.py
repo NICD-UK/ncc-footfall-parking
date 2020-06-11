@@ -12,7 +12,7 @@ CARPARKS_NAMES = ['Car park at Eldon Garden']
 CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&page=3' # page 3 has Eldon Garden
 FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0', 'PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1']
 FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime={start_time}&endtime={end_time}" 
-FOOTFALL_TIME_WINDOW_MINUTES = 30 # RAISE at next meet-up
+FOOTFALL_TIME_WINDOW_MINUTES = 60 # RAISE at next meet-up
 ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
 
 FILE_NAME_LATEST_CITY_STATE = "latest_city_state.json"
@@ -20,7 +20,7 @@ FILE_NAME_LATEST_CAR_PARKS = "latest_car_parks.json"
 FILE_NAME_CREDENTIALS = "settings.json"
 
 # logging
-logging.basicConfig(format='%(asctime)s %(funcName)s [%(lineno)d] %(message)s', level=logging.DEBUG)
+logging.basicConfig(format='%(asctime)s %(funcName)s [%(lineno)d] %(message)s', level=logging.INFO)
 
 # start
 logging.info('It is the beginning, is it?')
