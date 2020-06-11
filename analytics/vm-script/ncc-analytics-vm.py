@@ -117,6 +117,7 @@ def get_city_activity(footfall): # todo record for easier mod
         return(ACTIVITY_LEVELS[1])
     return(ACTIVITY_LEVELS[2])
 
+# deprecated
 def format_output(footfall, carparks, response_time):
     logging.debug(f"{footfall},{carparks},{response_time}")
     out = dict()
@@ -127,7 +128,14 @@ def format_output(footfall, carparks, response_time):
     out['carparks'] = carparks
     return(out)
 
-    logging.info('Python timer trigger function ran at %s', utc_timestamp)
+def format_city_state(footfall, response_time):
+    logging.debug(f"{footfall},{response_time}")
+    out = dict()
+    out['timestamp'] = str(datetime.datetime.now().astimezone().isoformat())
+    out['response_time_us'] = response_time.microseconds 
+    out['city_state'] = get_city_activity(footfall)
+    out['footfall'] = footfall
+    return(out)
 
 # start the clock
 start_time = datetime.datetime.now()
@@ -144,25 +152,27 @@ out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_t
 # sanity check
 
 
-# persist 
-file_name = f"ncc-api-out-{datetime.datetime.now().isoformat()}.json".replace(':','-')
+# persist city state
+file_name = f"ncc-city-state-{datetime.datetime.now().isoformat()}.json".replace(':','-')
 local_file_name = "out" + os.sep + file_name
 
 # local copy
 with open(local_file_name, 'w') as fOut:
-    fOut.write(json.dumps(out))
+    fOut.write(json.dumps(format_city_state(footfall_out)))
+
+# blob storage client    
 blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
-blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=file_name)
+blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/{file_name}")
+
 # upload to container
 with open(local_file_name, "rb") as data:
     blob_client.upload_blob(data)
 
-# overwrite latest
+# overwrite latest city state
 blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CITY_STATE)
 
 # upload to container
 with open(local_file_name, "rb") as data:
     blob_client.upload_blob(data, overwrite = True)
 
-logging.info(out)
 logging.info(f"It is done.")    
