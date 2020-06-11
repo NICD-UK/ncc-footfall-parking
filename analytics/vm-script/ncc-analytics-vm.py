@@ -147,7 +147,7 @@ footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
 
 # join into a single output
-out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
+# out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
 
 # sanity check
 
@@ -158,7 +158,7 @@ local_file_name = "out" + os.sep + file_name
 
 # local copy
 with open(local_file_name, 'w') as fOut:
-    fOut.write(json.dumps(format_city_state(footfall_out)))
+    fOut.write(json.dumps(format_city_state(footfall_out, datetime.datetime.now() - start_time)))
 
 # blob storage client    
 blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
