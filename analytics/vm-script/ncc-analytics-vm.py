@@ -146,12 +146,6 @@ footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 # pull the car parks data
 carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
 
-# join into a single output
-# out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
-
-# sanity check
-
-
 # persist city state
 file_name = f"ncc-city-state-{datetime.datetime.now().isoformat()}.json".replace(':','-')
 local_file_name = "out" + os.sep + file_name
@@ -160,7 +154,7 @@ local_file_name = "out" + os.sep + file_name
 with open(local_file_name, 'w') as fOut:
     fOut.write(json.dumps(format_city_state(footfall_out, datetime.datetime.now() - start_time)))
 
-# blob storage client    
+# blob storage client historical
 blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
 blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/{file_name}")
 
@@ -168,11 +162,13 @@ blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAM
 with open(local_file_name, "rb") as data:
     blob_client.upload_blob(data)
 
-# overwrite latest city state
-blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CITY_STATE)
+# only overwrite the latest file if there is at least one data sample
+if len(footfall_out[0]) > 0:
+    # overwrite latest city state
+    blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CITY_STATE)
 
-# upload to container
-with open(local_file_name, "rb") as data:
-    blob_client.upload_blob(data, overwrite = True)
+    # upload to container
+    with open(local_file_name, "rb") as data:
+        blob_client.upload_blob(data, overwrite = True)
 
 logging.info(f"It is done.")    
