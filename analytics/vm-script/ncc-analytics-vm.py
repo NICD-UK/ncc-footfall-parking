@@ -12,7 +12,7 @@ CARPARKS_NAMES = ['Eldon%20Square', 'Claremont%20Road', 'Dean%20Street', 'Eldon%
 CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&name="{car_park}"'
 FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0', 'PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1']
 FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime={start_time}&endtime={end_time}" 
-FOOTFALL_TIME_WINDOW_MINUTES = 30 # RAISE at next meet-up
+FOOTFALL_TIME_WINDOW_MINUTES = 60 # RAISE at next meet-up
 ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
 
 FILE_NAME_LATEST_CITY_STATE = "latest_city_state.json"
