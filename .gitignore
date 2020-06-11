@@ -19,3 +19,8 @@ analytics/ncc-data-processor/.vscode
 
 # azure function settings
 func_settings.json
+
+# local
+analytics/vm-script/settings.json
+_local/
+analytics/vm-script/out/
