@@ -11,11 +11,12 @@ import azure.functions as func
 CARPARKS_NAMES = ['Car park at Eldon Garden']
 CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&page=3' # page 3 has Eldon Garden
 FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0', 'PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1']
-FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime=202006102000&endtime=202006102100" # todo from time, until time
+FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime={start_time}&endtime={end_time}" 
+FOOTFALL_TIME_WINDOW_MINUTES = 30 # RAISE at next meet-up
 ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
 
 SAS_BLOB_CONNECTION = "SharedAccessSignature=sv=2019-07-07&ss=bf&srt=sco&st=2020-06-10T23%3A06%3A34Z&se=2020-11-11T21%3A06%3A00Z&sp=rwl&sig=chwFYHDTVGSQkSbzlkzvsY6qe5HKSeOyHB98BjcPN1w%3D;BlobEndpoint=https://nccfootfallparking.blob.core.windows.net/;FileEndpoint=https://nccfootfallparking.file.core.windows.net/;" # todo move to settings & regenerate the key
-CONTAINER_NAME = "api-data"
+CONTAINER_NAME = "api-data/historical"
 FILE_NAME_LATEST = "latest.json"
 
 def main(mytimer: func.TimerRequest,  outputBlob: func.Out[str]):
@@ -61,23 +62,34 @@ def main(mytimer: func.TimerRequest,  outputBlob: func.Out[str]):
 
 def extract_footfall(sensor_name, response):
     tmp = json.loads(response)
-    total_people_count = 0
-    for record in tmp['sensors'][0]['data']['Walking North']:
-        total_people_count += record['Value']
-    for record in tmp['sensors'][0]['data']['Walking South']:
-        total_people_count += record['Value']
-    number_of_datapoints = len(tmp['sensors'][0]['data']['Walking North']) + len(tmp['sensors'][0]['data']['Walking South'])
-    average_people_count = total_people_count / number_of_datapoints
     out = dict()
+    total_people_count = 0
+
+    # check that UO returned some data
+    if len(tmp['sensors'][0]['data']) > 0:
+        for record in tmp['sensors'][0]['data']['Walking North']:
+            total_people_count += record['Value']
+        for record in tmp['sensors'][0]['data']['Walking South']:
+            total_people_count += record['Value']
+        number_of_datapoints = len(tmp['sensors'][0]['data']['Walking North']) + len(tmp['sensors'][0]['data']['Walking South'])
+        average_people_count = total_people_count / number_of_datapoints
+    else:
+        # end early - no datapoints returned; don't return 0 as activity level
+        return(out)
+    
     out['sensor_name'] = sensor_name
     out['number_of_datapoints'] = number_of_datapoints 
     out['average_people_count'] = round(average_people_count, 1)
     return(out)
 
 def get_footfall_data(sensors, api_url):
+    import pdb; pdb.set_trace()
     result = []
     for sensor in sensors:
-        sensor_url = api_url.format(sensor_name = sensor)
+        time_now = datetime.datetime.now()
+        end_time = datetime.datetime.now().strftime("%Y%m%d%H%m")
+        start_time = (time_now - datetime.timedelta(minutes=FOOTFALL_TIME_WINDOW_MINUTES)).strftime("%Y%m%d%H%m")
+        sensor_url = api_url.format(sensor_name = sensor, start_time = start_time, end_time = end_time)
         try:
             contents = urllib.request.urlopen(sensor_url).read()
             out = extract_footfall(sensor, contents)
@@ -86,7 +98,7 @@ def get_footfall_data(sensors, api_url):
         result.append(out)
     return(result)
 
-def get_carpark_activity(current_occupancy):
+def get_carpark_activity(current_occupancy): # todo recode for easier mod
     if current_occupancy < 50:
         return(ACTIVITY_LEVELS[0])
     elif current_occupancy < 75:
@@ -116,7 +128,7 @@ def get_carpark_data(carparks, api_url):
     out = extract_carpark_data(contents, carparks)
     return(out)    
 
-def get_city_activity(footfall):
+def get_city_activity(footfall): # todo record for easier mod
     total_footfall = 0
     for record in footfall:
         total_footfall += record['average_people_count']
@@ -137,8 +149,26 @@ def format_output(footfall, carparks, response_time):
 
     logging.info('Python timer trigger function ran at %s', utc_timestamp)
 
-# start_time = datetime.datetime.now()
-# footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
-# carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
-# out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
-# print(out)
+start_time = datetime.datetime.now()
+footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
+carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
+out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
+print(out)
+
+# persist to historical blob
+file_name = f"ncc-api-out-{datetime.datetime.now().isoformat()}.json".replace(':','-')
+# ephemeral copy
+with open(file_name, 'w') as fOut:
+    fOut.write(json.dumps(out))
+from azure.storage.blob import BlobServiceClient
+blob_service_client = BlobServiceClient.from_connection_string(SAS_BLOB_CONNECTION)
+blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=file_name)
+# upload to container
+with open(file_name, "rb") as data:
+    blob_client.upload_blob(data)
+
+# # overwrite latest
+# blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=FILE_NAME_LATEST)
+# # upload to container
+# with open(file_name, "rb") as data:
+#     blob_client.upload_blob(data)
