@@ -3,6 +3,7 @@ import json
 import datetime
 import logging
 import random
+import logging
 import urllib.request
 from azure.storage.blob import BlobServiceClient
 from urllib.error import HTTPError
@@ -18,11 +19,15 @@ FILE_NAME_LATEST_CITY_STATE = "latest_city_state.json"
 FILE_NAME_LATEST_CAR_PARKS = "latest_car_parks.json"
 FILE_NAME_CREDENTIALS = "settings.json"
 
+logging.info("It is the beginning, is it?")
+
 # load credentials/settings
 with open(FILE_NAME_CREDENTIALS, 'r') as fIn:
     creds = json.load(fIn)
+logging.debug("Credentials loaded.")
 
 def extract_footfall(sensor_name, response):
+    print("Extracting.")
     tmp = json.loads(response)
     out = dict()
     total_people_count = 0
