@@ -4,6 +4,8 @@ import logging
 import random
 import urllib.request
 from urllib.error import HTTPError
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+
 
 import azure.functions as func
 
@@ -12,6 +14,10 @@ CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/
 FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0', 'PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1']
 FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime=202006102000&endtime=202006102100" # todo from time, until time
 ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
+
+SAS_BLOB_CONNECTION = "SharedAccessSignature=sv=2019-07-07&ss=bf&srt=sco&st=2020-06-10T23%3A06%3A34Z&se=2020-11-11T21%3A06%3A00Z&sp=rwl&sig=chwFYHDTVGSQkSbzlkzvsY6qe5HKSeOyHB98BjcPN1w%3D;BlobEndpoint=https://nccfootfallparking.blob.core.windows.net/;FileEndpoint=https://nccfootfallparking.file.core.windows.net/;" # todo move to settings & regenerate the key
+CONTAINER_NAME = "api-data"
+FILE_NAME_LATEST = "latest.json"
 
 def main(mytimer: func.TimerRequest) -> None:
     utc_timestamp = datetime.datetime.utcnow().replace(
@@ -31,12 +37,28 @@ def main(mytimer: func.TimerRequest) -> None:
 
         # join into a single output
         out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
-
+        
         # sanity check
 
-        # persist to historical blob
 
-        # overwrite latest
+        # persist to historical blob
+        # file_name = f"ncc-api-out-{datetime.datetime.now().isoformat()}.json".replace(':','-')
+        # # ephemeral copy
+        # with open(file_name, 'w') as fOut:
+        #     fOut.write(json.dumps(out))
+        # blob_service_client = BlobServiceClient.from_connection_string(SAS_BLOB_CONNECTION)
+        # blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=file_name)
+        # # upload to container
+        # with open(file_name, "rb") as data:
+        #     blob_client.upload_blob(data)
+
+        # # overwrite latest
+        # blob_client = blob_service_client.get_blob_client(container=CONTAINER_NAME, blob=FILE_NAME_LATEST)
+        # # upload to container
+        # with open(file_name, "rb") as data:
+        #     blob_client.upload_blob(data)
+        func.Out(out)    
+        logging.info(out)
 
 def extract_footfall(sensor_name, response):
     tmp = json.loads(response)
@@ -115,3 +137,9 @@ def format_output(footfall, carparks, response_time):
     return(out)
 
     logging.info('Python timer trigger function ran at %s', utc_timestamp)
+
+# start_time = datetime.datetime.now()
+# footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
+# carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
+# out = format_output(footfall_out, carpark_out, datetime.datetime.now() - start_time)
+# print(out)
