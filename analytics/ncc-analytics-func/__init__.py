@@ -4,7 +4,6 @@ import logging
 import random
 import urllib.request
 from urllib.error import HTTPError
-from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
 
 import azure.functions as func
@@ -19,7 +18,7 @@ SAS_BLOB_CONNECTION = "SharedAccessSignature=sv=2019-07-07&ss=bf&srt=sco&st=2020
 CONTAINER_NAME = "api-data"
 FILE_NAME_LATEST = "latest.json"
 
-def main(mytimer: func.TimerRequest) -> None:
+def main(mytimer: func.TimerRequest,  outputBlob: func.Out[str]):
     utc_timestamp = datetime.datetime.utcnow().replace(
         tzinfo=datetime.timezone.utc).isoformat()
 
@@ -57,8 +56,8 @@ def main(mytimer: func.TimerRequest) -> None:
         # # upload to container
         # with open(file_name, "rb") as data:
         #     blob_client.upload_blob(data)
-        func.Out(out)    
-        logging.info(out)
+        outputBlob.set(json.dumps(out))
+        logging.info(json.dumps(out))
 
 def extract_footfall(sensor_name, response):
     tmp = json.loads(response)

@@ -5,12 +5,12 @@
       "name": "mytimer",
       "type": "timerTrigger",
       "direction": "in",
-      "schedule": "0 */5 * * * *"
+      "schedule": "0 */2 * * * *"
     },
     {
-      "name": "api-data",
+      "name": "outputBlob",
       "type": "blob",
-      "path": "historical/",
+      "path": "api-data/{name}",
       "connection": "SharedAccessSignature=sv=2019-07-07&ss=bf&srt=sco&st=2020-06-10T23%3A06%3A34Z&se=2020-11-11T21%3A06%3A00Z&sp=rwl&sig=chwFYHDTVGSQkSbzlkzvsY6qe5HKSeOyHB98BjcPN1w%3D;BlobEndpoint=https://nccfootfallparking.blob.core.windows.net/;FileEndpoint=https://nccfootfallparking.file.core.windows.net/;",
       "direction": "out"
     }
