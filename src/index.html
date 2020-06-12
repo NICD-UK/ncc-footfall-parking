@@ -19,22 +19,28 @@
         </span>
       </button>
 
-
       <div class="sidebar-heading">
-        <h4>NE1 Status</h4>
+        <img class="logo" src="../public/assets/images/NE1.png" alt="ne1" />
+        <h4>Status</h4>
         <small>Last Updated</small><br />
-        <small>01/01/2020 00:11:22</small>
+        <small id="lastUpdated"></small>
       </div>
       <div class="list-group list-group-flush">
         <a href="index.html" class="list-group-item list-group-item-action bg-light d-flex justify-content-between align-items-center">
-          Map
-          <span class="badge badge-danger badge-pill">
-            <i class="feather icon-alert-triangle"></i>
+          Pedestrians
+          <span id="city-status-badge-busy" class="badge badge-danger badge-pill d-none">
+            <i class="feather icon-alert-triangle"></i>&nbsp;Busy
+          </span>
+          <span id="city-status-badge-average" class="badge badge-warning badge-pill d-none">
+            <i class="feather icon-alert-octagon"></i>&nbsp;Average
+          </span>
+          <span id="city-status-badge-quiet" class="badge badge-success badge-pill d-none">
+            <i class="feather icon-check"></i>&nbsp;Quiet
           </span>
         </a>
         <a href="carparks.html" class="list-group-item list-group-item-action bg-light d-flex justify-content-between align-items-center">
           Car Parks
-          <span class="currentCapacityCount badge badge-warning badge-pill"></span>
+          <span class="currentCapacityCount badge badge-pill"></span>
         </a>
         <a href="http://www.newcastle.gov.uk/coronavirus" target="_blank" class="list-group-item list-group-item-action bg-light">
           Council Guidance
@@ -51,8 +57,14 @@
 
     <!-- Page Content -->
     <div id="map"></div>
-    <div class="alert alert-danger" role="alert" id="city-status">
-      <i class="feather icon-alert-triangle"></i><strong>&nbsp;The city centre is busier than usual, we advise delaying your journey.</strong>
+    <div class="alert alert-danger d-none city-status-banner" role="alert" id="city-status-busy">
+      <i class="feather icon-alert-triangle"></i><strong>&nbsp;Our data shows that footfall in the city centre is high and you are advised to delay or postpone plans to visit.</strong>
+    </div>
+    <div class="alert alert-warning d-none city-status-banner" role="alert" id="city-status-average">
+      <i class="feather icon-alert-octagon"></i><strong>&nbsp;Our data shows that footfall in the city centre is getting close to capacity within the social distance measures.</strong>
+    </div>
+    <div class="alert alert-success d-none city-status-banner" role="alert" id="city-status-quiet">
+      <i class="feather icon-check"></i><strong>&nbsp;Our data shows that footfall in the city centre is low and there is sufficient space to safely social distance.</strong>
     </div>
     <!-- /#page-content-wrapper -->
 

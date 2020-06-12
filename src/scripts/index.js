@@ -3,38 +3,76 @@ import 'bootstrap';
 import $ from 'jquery';
 import map from './map';
 import carparks from './carparks';
+import carparkData from '../../public/assets/data/carparks';
 
 const data = {};
 
-// $.ajax({
-//     method: "GET",
-//     cache: false,
-//     url: 'https://nccfootfallparking.blob.core.windows.net/api-data/latest.json',
-//     success: function(response) {
-//         data = response;
-//         console.log(data);
-//     },
-//     error: function(error) {
-//         console.error(error);
-//     }
-// });
-
-// Run page dependant code
-switch (window.location.pathname) {
-    case '/':
-        map();
-        break;
-    case '/index.html':
-        map();
-        break;
-    case '/carparks.html':
-        carparks();
-        break;
-    default:
-        break;
+function getCityState() {
+    return $.ajax({
+        method: "GET",
+        cache: false,
+        url: 'https://nccfootfallparking.blob.core.windows.net/api-data/latest_city_state.json'
+    });
 }
 
-$('.currentCapacityCount').text(123);
+function getParking() {
+    return $.ajax({
+        method: "GET",
+        cache: false,
+        url: 'https://nccfootfallparking.blob.core.windows.net/api-data/latest_car_parks.json'
+    });
+}
+
+$.when(getCityState(), getParking()).done(function(state, parking){
+    data.state = state[1] === 'success' ? JSON.parse(state[0]) : null;
+    data.carparks = parking[1] === 'success' ? JSON.parse(parking[0]) : null;
+
+    let serverDate = (data.carparks.timestamp.split('T')[0]).split('-');
+    let serverTime = (data.carparks.timestamp.split('T')[1]).split('.')[0];
+
+    let lastUpdated = serverDate[2] + '/' + serverDate[1] + '/' + serverDate[0] + ' ' + serverTime;
+
+    $('#lastUpdated').text(lastUpdated);
+
+    if(data.state.city_state === 'busy') {
+        $('#city-status-badge-busy').toggleClass('d-none');
+    } else if (data.state.city_state === 'average') {
+        $('#city-status-badge-average').toggleClass('d-none');
+    } else {
+        $('#city-status-badge-quiet').toggleClass('d-none');
+    }
+
+    const totalSpaces = (carparkData.map(carpark => { return carpark.capacity; })).reduce((a, b) => a + b, 0),
+          totalOccupancy = (data.carparks.carparks.map(carpark => { return carpark.occupancy; })).reduce((a, b) => a + b, 0);
+
+    const occupancyRate = totalOccupancy/totalSpaces;
+
+    if(occupancyRate > .7) {
+        $('.currentCapacityCount.badge').addClass('badge-danger');
+    } else if (occupancyRate > .35) {
+        $('.currentCapacityCount.badge').addClass('badge-warning');
+    }
+    else {
+        $('.currentCapacityCount.badge').addClass('badge-success');
+    }
+
+    $('.currentCapacityCount').text(totalSpaces - totalOccupancy);
+
+    // Run page dependant code
+    switch (window.location.pathname) {
+        case '/':
+            map(data);
+            break;
+        case '/index.html':
+            map(data);
+            break;
+        case '/carparks.html':
+            carparks(data.carparks.carparks);
+            break;
+        default:
+            break;
+    }
+});
 
 $("#menu-toggle").click(function(e) {
     e.preventDefault();

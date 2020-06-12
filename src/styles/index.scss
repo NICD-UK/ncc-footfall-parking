@@ -13,18 +13,24 @@ body {
 
 .car-park-marker {
   text-align: center;
-  line-height: 30px;
+  position: relative;
 
-  i {
-    font-size: 30px;
+  img {
+    height: 60px !important;
+    width: 60px !important;
+  }
 
-    &.busy {
-      color: #dc3545;
-    }
+  span {
+    font-size: 12px;
+    line-height: 38px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
   }
 }
 
-#city-status {
+.city-status-banner {
   position: absolute;
   left: 2rem;
   bottom: 2rem;
@@ -78,6 +84,10 @@ body {
     padding: 0.875rem 1.25rem;
     font-size: 1.2rem;
     margin-top: -2rem;
+
+    img.logo {
+      height: 65px;
+    }
   }
 
   .list-group {
@@ -136,7 +146,7 @@ body {
     margin-left: -15rem;
   }
 
-  #city-status {
+  .city-status-banner {
     left: 17rem;
     text-align: left;
 
