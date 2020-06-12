@@ -149,8 +149,9 @@ file_name = f"ncc-city-state-{datetime.datetime.now().isoformat()}.json".replace
 local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff
 
 # local copy
+city_state = format_city_state(footfall_out, datetime.datetime.now() - start_time)
 with open(local_file_name, 'w') as fOut:
-    fOut.write(json.dumps(format_city_state(footfall_out, datetime.datetime.now() - start_time)))
+    fOut.write(json.dumps(city_state))
 
 # blob storage client historical
 blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
@@ -168,6 +169,10 @@ if len(footfall_out[0]) > 0:
     # upload to container
     with open(local_file_name, "rb") as data:
         blob_client.upload_blob(data, overwrite = True)
+
+    # additional one liner
+    with open('/home/ncc/ncc-footfall-parking/analytics/vm-script/city_state_log.csv', 'a') as fOut:
+        fOut.write(f"{city_state['timestamp']},{city_state['city_state']},{city_state['footfall'][0]['average_people_count']},,{city_state['footfall'][1]['average_people_count']},{city_state['response_time_us']}\n")
 
 logging.info(footfall_out)
 
