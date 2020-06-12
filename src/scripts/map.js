@@ -16,7 +16,7 @@ export default function(data) {
     
     const map = L.map('map', { zoomControl: false }).setView([54.9759, -1.6128], 15);
 
-    L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png', {
+    L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
     }).addTo(map);
 
@@ -33,8 +33,9 @@ export default function(data) {
         const state = currentData ? currentData.state : 'unknown';
 
         const marker = L.divIcon({
-            html: '<img width="40" alt="marker-' + state + '" src="../../public/assets/images/map-marker-' + state + '.png"><span class="spaces">' + spaces + '</span>',
+            html: '<img alt="marker-' + state + '" src="../../public/assets/images/map-marker-' + state + '.png"><span class="spaces">' + spaces + '</span>',
             iconSize: [40, 40],
+            iconAnchor: [20, 40],
             className: 'car-park-marker'
         });
 
