@@ -17,13 +17,13 @@ ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
 
 FILE_NAME_LATEST_CITY_STATE = "latest_city_state.json"
 FILE_NAME_LATEST_CAR_PARKS = "latest_car_parks.json"
-FILE_NAME_CREDENTIALS = "/home/ncc/ncc-footfall-parking/analytics/vm-script/settings.json"
+FILE_NAME_CREDENTIALS = "/home/ncc/ncc-footfall-parking/analytics/vm-script/settings.json" # todo uff
 
 # logging
 logging.basicConfig(format='%(asctime)s %(funcName)s [%(lineno)d] %(message)s', level=logging.INFO)
 
 # start
-logging.info('It is the beginning, is it?')
+logging.info('It is the beginning, is it not?')
 
 # load credentials/settings
 with open(FILE_NAME_CREDENTIALS, 'r') as fIn:
@@ -146,7 +146,7 @@ footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 
 # persist city state
 file_name = f"ncc-city-state-{datetime.datetime.now().isoformat()}.json".replace(':','-')
-local_file_name = "out" + os.sep + file_name
+local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff
 
 # local copy
 with open(local_file_name, 'w') as fOut:
@@ -180,7 +180,7 @@ carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
 print(carpark_out)
 # # persist car parks
 file_name = f"ncc-car-parks-{datetime.datetime.now().isoformat()}.json".replace(':','-')
-local_file_name = "out" + os.sep + file_name
+local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff
 
 # # local copy
 with open(local_file_name, 'w') as fOut:
