@@ -4,7 +4,7 @@ import carparks from '../../public/assets/data/carparks';
 export default function() {
     const map = L.map('map', { zoomControl: false }).setView([54.9759, -1.6128], 14);
 
-L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/terrain/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
 }).addTo(map);
 
