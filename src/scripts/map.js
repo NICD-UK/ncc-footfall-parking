@@ -3,8 +3,6 @@ import $ from 'jquery';
 import carparks from '../../public/assets/data/carparks';
 
 export default function(data) {
-
-    console.log(data);
     
     if(data.state.city_state === 'busy') {
         $('#city-status-busy').toggleClass('d-none');
@@ -27,15 +25,13 @@ export default function(data) {
     carparks.forEach(function(carpark){
 
         const currentData = data.carparks.carparks.find(obj => { return obj.name === carpark.name; });
-        console.log(currentData);
-
         const spaces = currentData ? (carpark.capacity - currentData.occupancy) : carpark.capacity;
         const state = currentData ? currentData.state : 'unknown';
 
         const marker = L.divIcon({
             html: '<img alt="marker-' + state + '" src="../../public/assets/images/map-marker-' + state + '.png"><span class="spaces">' + spaces + '</span>',
-            iconSize: [40, 40],
-            iconAnchor: [20, 40],
+            iconSize: [60, 60],
+            iconAnchor: [30, 60],
             className: 'car-park-marker'
         });
 
