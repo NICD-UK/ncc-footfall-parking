@@ -112,7 +112,7 @@ export default [
       "location": [54.972946,-1.608363]
     },
     {
-      "name": "NCP St John St NE1 5JGF",
+      "name": "NCP St John St",
       "address": "St John St, Newcastle upon Tyne, NE1 5JGF",
       "postcode": "NE1 5JGF",
       "district": "NE1",
