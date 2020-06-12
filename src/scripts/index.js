@@ -28,6 +28,14 @@ $.when(getCityState(), getParking()).done(function(state, parking){
     data.carparks = parking[1] === 'success' ? JSON.parse(parking[0]) : null;
     console.log(data);
 
+    if(data.state.city_state === 'busy') {
+        $('#city-status-badge-busy').toggleClass('d-none');
+    } else if (data.state.city_state === 'average') {
+        $('#city-status-badge-average').toggleClass('d-none');
+    } else {
+        $('#city-status-badge-quiet').toggleClass('d-none');
+    }
+
     const totalSpaces = (carparkData.map(carpark => { return carpark.capacity; })).reduce((a, b) => a + b, 0),
           totalOccupancy = (data.carparks.carparks.map(carpark => { return carpark.occupancy; })).reduce((a, b) => a + b, 0);
 

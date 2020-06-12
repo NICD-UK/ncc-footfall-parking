@@ -24,7 +24,7 @@ body {
   }
 }
 
-#city-status {
+.city-status-banner {
   position: absolute;
   left: 2rem;
   bottom: 2rem;
@@ -136,7 +136,7 @@ body {
     margin-left: -15rem;
   }
 
-  #city-status {
+  .city-status-banner {
     left: 17rem;
     text-align: left;
 
