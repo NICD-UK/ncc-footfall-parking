@@ -15,7 +15,7 @@ ToDo:
 * move from VM to azure function,
 * other improvements (search for ToDo in the code).
 
-City state output:
+City state output - [latest file here](https://nccfootfallparking.blob.core.windows.net/api-data/latest_city_state.json):
 
 ```json
 {
@@ -34,7 +34,7 @@ City state output:
 }
 ```
 
-Carparks output:
+Carparks output - [latest file here](https://nccfootfallparking.blob.core.windows.net/api-data/latest_car_parks.json):
 
 ```json
 {
