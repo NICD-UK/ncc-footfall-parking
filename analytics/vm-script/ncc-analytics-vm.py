@@ -113,7 +113,7 @@ def get_city_activity(footfall): # todo record for easier mod
         if 'average_people_count' in record:
             total_footfall += record['average_people_count']
         # else: log problem todo
-    if total_footfall < 35:
+    if total_footfall < 25:
         return(ACTIVITY_LEVELS[0])
     elif total_footfall < 100:
         return(ACTIVITY_LEVELS[1])
