@@ -16,8 +16,6 @@ export default function(data) {
 
         const currentData = data.find(obj => { return obj.name === carpark.name; });
 
-        console.log(currentData);
-
         let statusClass = currentData ? states[currentData.state] : 'secondary';
         let spaces = currentData ? (carpark.capacity - currentData.occupancy) : carpark.capacity;
 

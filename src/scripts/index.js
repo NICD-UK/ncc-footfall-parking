@@ -55,10 +55,10 @@ $.when(getCityState(), getParking()).done(function(state, parking){
     // Run page dependant code
     switch (window.location.pathname) {
         case '/':
-            map(data.state);
+            map(data);
             break;
         case '/index.html':
-            map(data.state);
+            map(data);
             break;
         case '/carparks.html':
             carparks(data.carparks.carparks);

@@ -21,6 +21,18 @@ body {
     &.busy {
       color: #dc3545;
     }
+
+    &.average {
+      color: #ffc107;
+    }
+
+    &.quiet {
+      color: #28a745;
+    }
+
+    &.unknown {
+      color: #333;
+    }
   }
 }
 
