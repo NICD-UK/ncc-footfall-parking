@@ -26,7 +26,13 @@ function getParking() {
 $.when(getCityState(), getParking()).done(function(state, parking){
     data.state = state[1] === 'success' ? JSON.parse(state[0]) : null;
     data.carparks = parking[1] === 'success' ? JSON.parse(parking[0]) : null;
-    console.log(data);
+
+    let serverDate = (data.carparks.timestamp.split('T')[0]).split('-');
+    let serverTime = (data.carparks.timestamp.split('T')[1]).split('.')[0];
+
+    let lastUpdated = serverDate[2] + '/' + serverDate[1] + '/' + serverDate[0] + ' ' + serverTime;
+
+    $('#lastUpdated').text(lastUpdated);
 
     if(data.state.city_state === 'busy') {
         $('#city-status-badge-busy').toggleClass('d-none');
