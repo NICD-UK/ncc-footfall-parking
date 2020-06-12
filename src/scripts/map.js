@@ -12,10 +12,10 @@ export default function(data) {
         $('#city-status-quiet').toggleClass('d-none');
     }
     
-    const map = L.map('map', { zoomControl: false }).setView([54.9759, -1.6128], 15);
+    const map = L.map('map', { zoomControl: false, maxZoom: 16 }).setView([54.9759, -1.6128], 15);
 
-    L.tileLayer('https://stamen-tiles-{s}.a.ssl.fastly.net/toner-lite/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a> &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors'
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
     }).addTo(map);
 
     L.control.zoom({
