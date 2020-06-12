@@ -13,26 +13,15 @@ body {
 
 .car-park-marker {
   text-align: center;
-  line-height: 30px;
+  position: relative;
 
-  i {
-    font-size: 30px;
-
-    &.busy {
-      color: #dc3545;
-    }
-
-    &.average {
-      color: #ffc107;
-    }
-
-    &.quiet {
-      color: #28a745;
-    }
-
-    &.unknown {
-      color: #333;
-    }
+  span {
+    font-size: 8px;
+    line-height: 26px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
   }
 }
 

@@ -24,18 +24,6 @@ export default function(data) {
         position:'topright'
     }).addTo(map);
 
-    const states = ['quiet', 'average', 'busy', 'unknown'];
-
-    const markers = [];
-
-    states.forEach(function(state){
-        markers[state] = L.divIcon({
-            html: '<i class="feather icon-map-pin ' + state + '"></i>',
-            iconSize: [30, 30],
-            className: 'car-park-marker'
-        });
-    });
-
     carparks.forEach(function(carpark){
 
         const currentData = data.carparks.carparks.find(obj => { return obj.name === carpark.name; });
@@ -44,8 +32,14 @@ export default function(data) {
         const spaces = currentData ? (carpark.capacity - currentData.occupancy) : carpark.capacity;
         const state = currentData ? currentData.state : 'unknown';
 
+        const marker = L.divIcon({
+            html: '<img width="40" alt="marker-' + state + '" src="../../public/assets/images/map-marker-' + state + '.png"><span class="spaces">' + spaces + '</span>',
+            iconSize: [40, 40],
+            className: 'car-park-marker'
+        });
+
         if(carpark.location.length === 2) {
-            L.marker(carpark.location, { icon: markers[state] }).addTo(map)
+            L.marker(carpark.location, { icon: marker }).addTo(map)
             .bindPopup('There are ' + spaces + ' spaces remaing at ' + carpark.name + '.');
         }
     });
