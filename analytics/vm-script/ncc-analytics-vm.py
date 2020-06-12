@@ -17,7 +17,7 @@ ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
 
 FILE_NAME_LATEST_CITY_STATE = "latest_city_state.json"
 FILE_NAME_LATEST_CAR_PARKS = "latest_car_parks.json"
-FILE_NAME_CREDENTIALS = "settings.json"
+FILE_NAME_CREDENTIALS = "/home/ncc/ncc-footfall-parking/analytics/vm-script/settings.json"
 
 # logging
 logging.basicConfig(format='%(asctime)s %(funcName)s [%(lineno)d] %(message)s', level=logging.INFO)
