@@ -12,15 +12,29 @@ export default function(data) {
         $('#city-status-quiet').toggleClass('d-none');
     }
     
-    const map = L.map('map', { zoomControl: false, maxZoom: 16 }).setView([54.9759, -1.6128], 15);
+    const map = L.map('map', { zoomControl: false, maxZoom: 16 }).setView([54.9759, -1.6128], 16);
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
-        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+    L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
+        attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>'
     }).addTo(map);
 
     L.control.zoom({
         position:'topright'
     }).addTo(map);
+
+    var northEnd = new L.LatLng(54.977758, -1.613620);
+    var midPoint = new L.LatLng(54.975865, -1.612830);
+    var southEnd = new L.LatLng(54.974312, -1.611817);
+    var pointList = [northEnd, midPoint, southEnd];
+
+    var line = new L.Polyline(pointList, {
+        color: 'blue',
+        weight: 4,
+        opacity: 0.75,
+        smoothFactor: 1
+    });
+    
+    line.addTo(map);
 
     carparks.forEach(function(carpark){
 
