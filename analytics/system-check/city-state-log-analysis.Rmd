@@ -1,0 +1,87 @@
+---
+  title: 'City State data'
+output:
+  html_document:
+  df_print: paged
+pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+Load log file.
+
+```{r}
+library(ggplot2)
+library(lubridate)
+library(tidyverse)
+DATA_PATH <- "data/city_state_log.csv"
+data <- read.csv(DATA_PATH, skip = 1, header = FALSE)
+colnames(data) <- c("timestamp", "state", "footfall_0", "nothing", "footfall_1", "response_time")
+```
+
+Format timestamp
+
+```{r}
+data['ts'] <- ymd_hms(data$timestamp) + 3600
+data_tbl <- as_tibble(data)
+tz(data$ts) <- "Europe/London"
+```
+
+Plot footfall <- take this one
+
+```{r}
+ggplot() +
+  theme_bw() +
+  labs(title = "Northumberland Street (2 footfall sensors)") + 
+  xlab("Time (BST)") + ylab("People count (60 minutes sliding window)") +
+  geom_line(data=sub_data_tbl, aes(ts, footfall_0), colour="blue") +
+  geom_line(data=sub_data_tbl, aes(ts, footfall_1), colour="lightblue") +
+  ylim(c(0,50)) +
+  geom_hline(yintercept=25, colour="orange") 
+```
+
+```{r}
+from_ts <-  ymd_hms("2020-06-13 16:00:00 BST")
+to_ts <-  ymd_hms("2020-06-13 20:00:00 BST")
+sub_data_tbl <- data_tbl %>% 
+  filter(ts >= from_ts) %>%
+  filter(ts < to_ts)
+
+green_rect <- data.frame(xmin=from_ts - 3600, xmax=to_ts + 3600, ymin=-Inf, ymax=25)
+amber_rect <- data.frame(xmin=from_ts - 3600, xmax=to_ts + 3600, ymin=25, ymax=Inf)
+ggplot() +
+  theme_bw() +
+  labs(title = "Northumberland Street (2 footfall sensors)") + 
+  xlab("Time (BST)") + ylab("People count (60 minutes sliding window)") +
+  geom_line(data=sub_data_tbl, aes(ts, footfall_0), colour="blue") +
+  geom_point(data=sub_data_tbl, aes(ts, footfall_0), colour="blue") +
+  geom_line(data=sub_data_tbl, aes(ts, footfall_1), colour="lightblue") +
+  geom_point(data=sub_data_tbl, aes(ts, footfall_1), colour="lightblue") +
+  ylim(c(0,50)) +
+  geom_rect(data=green_rect, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax),
+              fill="green",
+              alpha=0.05,
+              inherit.aes = FALSE) +
+    geom_rect(data=amber_rect, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax),
+              fill="orange",
+              alpha=0.05,
+              inherit.aes = FALSE) +
+  geom_hline(yintercept=25, colour="orange") 
+  #geom_hline(yintercept=100, colour="red")
+```
+
+Plot city state
+
+```
+
+```
+
+Plot response time
+
+```{r}
+summary(data$response_time)
+ggplot() +
+  theme_bw() +
+  labs(title = "UO API v1.1 response time") +
+  geom_bar(data = data, aes(x = response_time))
+```
