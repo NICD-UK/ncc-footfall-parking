@@ -8,7 +8,7 @@ import urllib.request
 from azure.storage.blob import BlobServiceClient
 from urllib.error import HTTPError
 
-LOCAL_DEV = True # todo - setup testing/production pipelines; not this hack
+LOCAL_DEV = False # todo - setup testing/production pipelines; not this hack
 
 CARPARKS_NAMES = ['Eldon%20Square', 'Claremont%20Road', 'Dean%20Street', 'Eldon%20Garden', 'Ellison%20Place', 'Grainger%20Town', 'Manors']
 CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&name="{car_park}"'
@@ -164,10 +164,43 @@ def format_car_parks(carparks, response_time):
 # ToDo - put everything into classes; tidy-up this mess
 # ToDo - split city state from car park execution
 # ToDo - monitor lag in response time from UO
-# CITY STATE
-# start the clock
+# CAR PARKS
+# start the clock for car parks
 start_time = datetime.datetime.now()
 
+# pull the car parks data
+carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
+print(carpark_out)
+# # persist car parks
+file_name = f"ncc-car-parks-{datetime.datetime.now().isoformat()}.json".replace(':','-')
+if LOCAL_DEV:
+    local_file_name = "out" + os.sep + file_name # todo uff
+else:
+    local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff    
+
+# # local copy
+with open(local_file_name, 'w') as fOut:
+    fOut.write(json.dumps(format_car_parks(carpark_out, datetime.datetime.now() - start_time)))
+
+# # blob storage client historical
+blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
+blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/carparks/{file_name}")
+
+# # upload to container
+with open(local_file_name, "rb") as data:
+    blob_client.upload_blob(data)
+
+# only overwrite the latest file if there is at least one data sample
+if len(carpark_out[0]) > 0:
+    # overwrite latest city state
+    blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CAR_PARKS)
+
+    # upload to container
+    with open(local_file_name, "rb") as data:
+        blob_client.upload_blob(data, overwrite = True)
+logging.info(carpark_out)
+
+# CITY STATE
 # pull all footfall data
 footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 
@@ -208,40 +241,4 @@ if len(footfall_out[0]) > 0:
 
 logging.info(footfall_out)
 
-# CAR PARKS
-# re-start the clock for car parks
-start_time = datetime.datetime.now()
-
-# pull the car parks data
-carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
-print(carpark_out)
-# # persist car parks
-file_name = f"ncc-car-parks-{datetime.datetime.now().isoformat()}.json".replace(':','-')
-if LOCAL_DEV:
-    local_file_name = "out" + os.sep + file_name # todo uff
-else:
-    local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff    
-
-# # local copy
-with open(local_file_name, 'w') as fOut:
-    fOut.write(json.dumps(format_car_parks(carpark_out, datetime.datetime.now() - start_time)))
-
-# # blob storage client historical
-blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
-blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/carparks/{file_name}")
-
-# # upload to container
-with open(local_file_name, "rb") as data:
-    blob_client.upload_blob(data)
-
-# only overwrite the latest file if there is at least one data sample
-if len(carpark_out[0]) > 0:
-    # overwrite latest city state
-    blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CAR_PARKS)
-
-    # upload to container
-    with open(local_file_name, "rb") as data:
-        blob_client.upload_blob(data, overwrite = True)
-logging.info(carpark_out)
-
-logging.info("It is done.")
+logging.info(f"It is done: {city_state['response_time_us']} us")
