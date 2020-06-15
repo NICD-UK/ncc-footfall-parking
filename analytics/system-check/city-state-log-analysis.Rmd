@@ -8,7 +8,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-Load log file.
+Load server log file.
 
 ```{r}
 library(ggplot2)
@@ -27,22 +27,29 @@ data_tbl <- as_tibble(data)
 tz(data$ts) <- "Europe/London"
 ```
 
-Plot footfall <- take this one
+Missing data check
+
+```{r}
+expected_data_points <- interval(data_tbl$ts[1], data_tbl$ts[dim(data_tbl)[1]]) / minutes(5)
+missing_data_points <- floor(expected_data_points) - dim(data_tbl)[1]
+```
+
+Plot footfall 
 
 ```{r}
 ggplot() +
   theme_bw() +
   labs(title = "Northumberland Street (2 footfall sensors)") + 
   xlab("Time (BST)") + ylab("People count (60 minutes sliding window)") +
-  geom_line(data=sub_data_tbl, aes(ts, footfall_0), colour="blue") +
-  geom_line(data=sub_data_tbl, aes(ts, footfall_1), colour="lightblue") +
+  geom_line(data=data_tbl, aes(ts, footfall_0), colour="blue") +
+  geom_line(data=data_tbl, aes(ts, footfall_1), colour="lightblue") +
   ylim(c(0,50)) +
   geom_hline(yintercept=25, colour="orange") 
 ```
 
 ```{r}
-from_ts <-  ymd_hms("2020-06-13 16:00:00 BST")
-to_ts <-  ymd_hms("2020-06-13 20:00:00 BST")
+from_ts <-  ymd_hms("2020-06-15 00:00:00 BST")
+to_ts <-  ymd_hms("2020-06-15 22:00:00 BST")
 sub_data_tbl <- data_tbl %>% 
   filter(ts >= from_ts) %>%
   filter(ts < to_ts)
@@ -68,6 +75,37 @@ ggplot() +
               inherit.aes = FALSE) +
   geom_hline(yintercept=25, colour="orange") 
   #geom_hline(yintercept=100, colour="red")
+```
+
+```{r}
+from_ts <-  ymd_hms("2020-06-15 00:00:00 BST")
+to_ts <-  ymd_hms("2020-06-15 22:00:00 BST")
+sub_data_tbl <- data_tbl %>% 
+  filter(ts >= from_ts) %>%
+  filter(ts < to_ts)
+
+green_rect <- data.frame(xmin=from_ts - 3600, xmax=to_ts + 3600, ymin=-Inf, ymax=25)
+amber_rect <- data.frame(xmin=from_ts - 3600, xmax=to_ts + 3600, ymin=25, ymax=Inf)
+red_rect <- data.frame(xmin=from_ts - 3600, xmax=to_ts + 3600, ymin=100, ymax=Inf)
+
+sub_data_tbl %>% 
+  pivot_longer(c("footfall_0", "footfall_1"), names_to = "key", values_to = "value") %>% 
+  ggplot(aes(x = ts, y = value, colour = key)) +geom_line() +
+  geom_rect(data=green_rect, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax),
+            fill="green",
+            alpha=0.05,
+            inherit.aes = FALSE) +
+  geom_rect(data=amber_rect, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax),
+            fill="orange",
+            alpha=0.05,
+            inherit.aes = FALSE) +
+  geom_rect(data=red_rect, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax),
+            fill="red",
+            alpha=0.05,
+            inherit.aes = FALSE) +
+  labs(title = "Northumberland Street (2 footfall sensors)") + 
+  xlab("Time (BST)") + ylab("People count (60 minutes sliding window)") +
+  theme_bw() + theme(legend.position="none")
 ```
 
 Plot city state
