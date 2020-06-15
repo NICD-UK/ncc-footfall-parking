@@ -162,44 +162,51 @@ def format_car_parks(carparks, response_time):
     return(out)    
 
 # ToDo - put everything into classes; tidy-up this mess
+# ToDo - split city state from car park execution
+# ToDo - monitor lag in response time from UO
 # CITY STATE
 # start the clock
-# start_time = datetime.datetime.now()
+start_time = datetime.datetime.now()
 
-# # pull all footfall data
-# footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
+# pull all footfall data
+footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
 
-# # persist city state
-# file_name = f"ncc-city-state-{datetime.datetime.now().isoformat()}.json".replace(':','-')
-# local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff
+# persist city state
+file_name = f"ncc-city-state-{datetime.datetime.now().isoformat()}.json".replace(':','-')
+if LOCAL_DEV:
+    local_file_name = "out" + os.sep + file_name # todo uff
+else:
+    local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff
 
-# # local copy
-# city_state = format_city_state(footfall_out, datetime.datetime.now() - start_time)
-# with open(local_file_name, 'w') as fOut:
-#     fOut.write(json.dumps(city_state))
 
-# # blob storage client historical
-# blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
-# blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/citystate/{file_name}")
+# local copy
+city_state = format_city_state(footfall_out, datetime.datetime.now() - start_time)
+with open(local_file_name, 'w') as fOut:
+    fOut.write(json.dumps(city_state))
 
-# # upload to container
-# with open(local_file_name, "rb") as data:
-#     blob_client.upload_blob(data)
+# blob storage client historical
+blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
+blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/citystate/{file_name}")
 
-# # only overwrite the latest file if there is at least one data sample
-# if len(footfall_out[0]) > 0:
-#     # overwrite latest city state
-#     blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CITY_STATE)
+# upload to container
+with open(local_file_name, "rb") as data:
+    blob_client.upload_blob(data)
 
-#     # upload to container
-#     with open(local_file_name, "rb") as data:
-#         blob_client.upload_blob(data, overwrite = True)
+# only overwrite the latest file if there is at least one data sample
+if len(footfall_out[0]) > 0:
+    # overwrite latest city state
+    blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CITY_STATE)
 
-#     # additional one liner
-#     with open('/home/ncc/ncc-footfall-parking/analytics/vm-script/city_state_log.csv', 'a') as fOut:
-#         fOut.write(f"{city_state['timestamp']},{city_state['city_state']},{city_state['footfall'][0]['average_people_count']},,{city_state['footfall'][1]['average_people_count']},{city_state['response_time_us']}\n")
+    # upload to container
+    with open(local_file_name, "rb") as data:
+        blob_client.upload_blob(data, overwrite = True)
 
-# logging.info(footfall_out)
+    # additional one liner
+    if not LOCAL_DEV:
+        with open('/home/ncc/ncc-footfall-parking/analytics/vm-script/city_state_log.csv', 'a') as fOut:
+            fOut.write(f"{city_state['timestamp']},{city_state['city_state']},{city_state['footfall'][0]['average_people_count']},,{city_state['footfall'][1]['average_people_count']},{city_state['response_time_us']}\n")
+
+logging.info(footfall_out)
 
 # CAR PARKS
 # re-start the clock for car parks
@@ -208,30 +215,33 @@ start_time = datetime.datetime.now()
 # pull the car parks data
 carpark_out = get_carpark_data(CARPARKS_NAMES, CARPARKS_API_URL)
 print(carpark_out)
-# # # persist car parks
-# file_name = f"ncc-car-parks-{datetime.datetime.now().isoformat()}.json".replace(':','-')
-# local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff
+# # persist car parks
+file_name = f"ncc-car-parks-{datetime.datetime.now().isoformat()}.json".replace(':','-')
+if LOCAL_DEV:
+    local_file_name = "out" + os.sep + file_name # todo uff
+else:
+    local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff    
 
-# # # local copy
-# with open(local_file_name, 'w') as fOut:
-#     fOut.write(json.dumps(format_car_parks(carpark_out, datetime.datetime.now() - start_time)))
+# # local copy
+with open(local_file_name, 'w') as fOut:
+    fOut.write(json.dumps(format_car_parks(carpark_out, datetime.datetime.now() - start_time)))
 
-# # # blob storage client historical
-# blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
-# blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/carparks/{file_name}")
+# # blob storage client historical
+blob_service_client = BlobServiceClient.from_connection_string(creds['SAS_BLOB_CONNECTION'])
+blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=f"historical/carparks/{file_name}")
 
-# # # upload to container
-# with open(local_file_name, "rb") as data:
-#     blob_client.upload_blob(data)
+# # upload to container
+with open(local_file_name, "rb") as data:
+    blob_client.upload_blob(data)
 
-# # only overwrite the latest file if there is at least one data sample
-# if len(carpark_out[0]) > 0:
-#     # overwrite latest city state
-#     blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CAR_PARKS)
+# only overwrite the latest file if there is at least one data sample
+if len(carpark_out[0]) > 0:
+    # overwrite latest city state
+    blob_client = blob_service_client.get_blob_client(container=creds['CONTAINER_NAME'], blob=FILE_NAME_LATEST_CAR_PARKS)
 
-#     # upload to container
-#     with open(local_file_name, "rb") as data:
-#         blob_client.upload_blob(data, overwrite = True)
-# logging.info(carpark_out)
+    # upload to container
+    with open(local_file_name, "rb") as data:
+        blob_client.upload_blob(data, overwrite = True)
+logging.info(carpark_out)
 
-# logging.info("It is done.")
+logging.info("It is done.")
