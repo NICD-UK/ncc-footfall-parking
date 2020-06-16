@@ -64,6 +64,7 @@ body {
   -o-transition: margin .25s ease-out;
   transition: margin .25s ease-out;
   z-index: 600;
+  max-width: 15rem;
 
   .sidebar-toggle {
     background-color: #dc3545;
@@ -85,8 +86,14 @@ body {
     font-size: 1.2rem;
     margin-top: -2rem;
 
-    img.logo {
-      height: 65px;
+    h5 {
+      font-size: 1.1rem;
+      line-height: 1.8rem;
+    }
+
+    sup {
+      font-size: 50%;
+      top: -0.8rem;
     }
   }
 
