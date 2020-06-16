@@ -12,7 +12,7 @@ export default function(data) {
         $('#city-status-quiet').toggleClass('d-none');
     }
     
-    const map = L.map('map', { zoomControl: false, maxZoom: 19 }).setView([54.9759, -1.6128], 15);
+    const map = L.map('map', { zoomControl: false, maxZoom: 16 }).setView([54.9759, -1.6128], 15);
 
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
