@@ -3,7 +3,6 @@ import json
 import datetime
 import logging
 import random
-import logging
 import urllib.request
 from azure.storage.blob import BlobServiceClient
 from urllib.error import HTTPError
