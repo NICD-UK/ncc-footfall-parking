@@ -46,9 +46,9 @@ export default function(data) {
         let popupMessage = '';
         
         if(currentData) {
-            popupMessage = 'There are ' + spaces + ' spaces remaining at ' + carpark.name + '.'
+            popupMessage = 'There are ' + spaces + ' spaces remaining at ' + carpark.name + '.';
         } else {
-            popupMessage = 'There are a total of ' + spaces + ' spaces at ' + carpark.name + '.'
+            popupMessage = 'There are a total of ' + spaces + ' spaces at ' + carpark.name + '.';
         }
 
         const marker = L.divIcon({

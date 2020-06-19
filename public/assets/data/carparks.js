@@ -25,11 +25,11 @@ export default [
     },
     {
       "name": "Eldon Square",
-      "address": "Eldon Square, Percy Street, Newcastle upon Tyne, NE1 7RT",
-      "postcode": "NE1 7RT",
+      "address": "Eldon Square, Percy Street, Newcastle upon Tyne, NE1 7RZ",
+      "postcode": "NE1 7RZ",
       "district": "NE1",
       "capacity": 497,
-      "location": [54.97676,-1.61556]
+      "location": [54.97598,-1.61540]
     },
     {
       "name": "Ellison Place",
