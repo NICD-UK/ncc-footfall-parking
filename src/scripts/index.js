@@ -23,12 +23,23 @@ function getParking() {
     });
 }
 
+function ISOtoLocale(date) {
+    const offsetMs = date.getTimezoneOffset() * 60 * 1000;
+    const msLocal =  date.getTime() - offsetMs;
+    const dateLocal = new Date(msLocal);
+    const iso = dateLocal.toISOString();
+    const isoLocal = iso.slice(0, 19);
+    return isoLocal;
+}
+
 $.when(getCityState(), getParking()).done(function(state, parking){
     data.state = state[1] === 'success' ? JSON.parse(state[0]) : null;
     data.carparks = parking[1] === 'success' ? JSON.parse(parking[0]) : null;
 
-    let serverDate = (data.carparks.timestamp.split('T')[0]).split('-');
-    let serverTime = (data.carparks.timestamp.split('T')[1]).split('.')[0];
+    const localUpdate = ISOtoLocale(new Date(data.carparks.timestamp));
+
+    let serverDate = (localUpdate.split('T')[0]).split('-');
+    let serverTime = (localUpdate.split('T')[1]).split('.')[0];
 
     let lastUpdated = serverDate[2] + '/' + serverDate[1] + '/' + serverDate[0] + ' ' + serverTime;
 
