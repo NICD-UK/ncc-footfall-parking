@@ -42,6 +42,14 @@ export default function(data) {
         const currentData = data.carparks.carparks.find(obj => { return obj.name === carpark.name; });
         const spaces = currentData ? (carpark.capacity - currentData.occupancy) : carpark.capacity;
         const state = currentData ? currentData.state : 'unknown';
+        
+        let popupMessage = '';
+        
+        if(currentData) {
+            popupMessage = 'There are ' + spaces + ' spaces remaining at ' + carpark.name + '.'
+        } else {
+            popupMessage = 'There are a total of ' + spaces + ' spaces at ' + carpark.name + '.'
+        }
 
         const marker = L.divIcon({
             html: '<img alt="marker-' + state + '" src="../../public/assets/images/map-marker-' + state + '.png"><span class="spaces">' + spaces + '</span>',
@@ -52,7 +60,7 @@ export default function(data) {
 
         if(carpark.location.length === 2) {
             L.marker(carpark.location, { icon: marker }).addTo(map)
-            .bindPopup('There are ' + spaces + ' spaces remaing at ' + carpark.name + '.');
+            .bindPopup(popupMessage);
         }
     });
 }
