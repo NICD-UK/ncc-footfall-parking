@@ -101,10 +101,40 @@ body {
     width: 15rem;
   }
 
+  .support {
+
+    padding: 0.75rem 1.25rem;
+
+    small {
+      margin-bottom: 1rem;
+    }
+    
+    
+  }
+
   .sidebar-footer {
     position: absolute;
     bottom: 0;
     padding: 0.5rem;
+
+    p {
+      width: 50%;
+    }
+
+    .logos {
+
+      margin-bottom: 1rem;;
+
+      img{
+        display: block;
+        max-height: 30px;
+        margin: 1rem auto;
+  
+        &.nicd {
+          width: 60px;
+        }
+      }
+    }
 
     a:hover {
       text-decoration: none;
