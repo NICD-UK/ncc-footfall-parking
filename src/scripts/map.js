@@ -3,19 +3,23 @@ import $ from 'jquery';
 import carparks from '../../public/assets/data/carparks';
 
 export default function(data) {
+
+    let stateColour = '#28A746';
     
     if(data.state.city_state === 'busy') {
         $('#city-status-busy').toggleClass('d-none');
+        stateColour = '#DC3545';
     } else if (data.state.city_state === 'average') {
         $('#city-status-average').toggleClass('d-none');
+        stateColour = '#FFC107';
     } else {
         $('#city-status-quiet').toggleClass('d-none');
     }
     
-    const map = L.map('map', { zoomControl: false, maxZoom: 16 }).setView([54.9759, -1.6128], 16);
+    const map = L.map('map', { zoomControl: false, maxZoom: 16, minZoom: 10 }).setView([54.9759, -1.6128], 15);
 
-    L.tileLayer('https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}{r}.png', {
-        attribution: '<a href="https://wikimediafoundation.org/wiki/Maps_Terms_of_Use">Wikimedia</a>'
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Tiles &copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
     }).addTo(map);
 
     L.control.zoom({
@@ -28,8 +32,8 @@ export default function(data) {
     var pointList = [northEnd, midPoint, southEnd];
 
     var line = new L.Polyline(pointList, {
-        color: 'blue',
-        weight: 4,
+        color: stateColour,
+        weight: 5,
         opacity: 0.75,
         smoothFactor: 1
     });
