@@ -3,11 +3,15 @@ import $ from 'jquery';
 import carparks from '../../public/assets/data/carparks';
 
 export default function(data) {
+
+    let stateColour = '#28A746';
     
     if(data.state.city_state === 'busy') {
         $('#city-status-busy').toggleClass('d-none');
+        stateColour = '#DC3545';
     } else if (data.state.city_state === 'average') {
         $('#city-status-average').toggleClass('d-none');
+        stateColour = '#FFC107';
     } else {
         $('#city-status-quiet').toggleClass('d-none');
     }
@@ -29,8 +33,8 @@ export default function(data) {
     var pointList = [northEnd, midPoint, southEnd];
 
     var line = new L.Polyline(pointList, {
-        color: 'blue',
-        weight: 4,
+        color: stateColour,
+        weight: 5,
         opacity: 0.75,
         smoothFactor: 1
     });
