@@ -40,6 +40,14 @@ export default [
       "location": [54.97606,-1.60804]
     },
     {
+      "name": "Fenkle Street",
+      "address": "Fenkle Street Car Park, 2-8 Fenkle Street, Newcastle upon Tyne NE1 5XN",
+      "postcode": "NE1 5XN",
+      "district": "NE1",
+      "capacity": 98,
+      "location": [54.97095,-1.61876]
+    },
+    {
       "name": "Grainger Town",
       "address": "Grainger Town, Waterloo Street, Newcastle upon Tyne, NE1 4DP",
       "postcode": "NE1 4DP",
