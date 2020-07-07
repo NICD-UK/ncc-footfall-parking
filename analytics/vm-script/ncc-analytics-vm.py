@@ -3,6 +3,7 @@ import json
 import datetime
 import logging
 import random
+import numpy as np
 import urllib.request
 from azure.storage.blob import BlobServiceClient
 from urllib.error import HTTPError
@@ -13,7 +14,6 @@ CARPARKS_NAMES = ['Eldon%20Square', 'Claremont%20Road', 'Dean%20Street', 'Eldon%
 CARPARKS_API_URL = 'https://api.newcastle.urbanobservatory.ac.uk/api/v2/sensors/entity?metric="Occupied%20spaces"&name="{car_park}"'
 FOOTFALL_SENSOR_NAMES = ['PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_0', 'PER_PEOPLE_NORTHUMERLAND_LINE_LONG_DISTANCE_HEAD_1']
 FOOTFALL_API_URL = "http://uoweb3.ncl.ac.uk/api/v1.1/sensors/{sensor_name}/data/json/?starttime={start_time}&endtime={end_time}" 
-FOOTFALL_TIME_WINDOW_MINUTES = 60 # RAISE at next meet-up
 ACTIVITY_LEVELS = ['quiet', 'average', 'busy']
 
 if LOCAL_DEV:
@@ -21,14 +21,16 @@ if LOCAL_DEV:
     CAR_PARKS_PUBLIC_BAYS = "car_park_capacity.json" # local dev
     FILE_NAME_LATEST_CITY_STATE = "testing/latest_city_state.json"
     FILE_NAME_LATEST_CAR_PARKS = "testing/latest_car_parks.json"
+    FOOTFALL_TIME_WINDOW_MINUTES = 120
 else:
     FILE_NAME_LATEST_CITY_STATE = "latest_city_state.json"
     FILE_NAME_LATEST_CAR_PARKS = "latest_car_parks.json"
     FILE_NAME_CREDENTIALS = "/home/ncc/ncc-footfall-parking/analytics/vm-script/settings.json" # todo uff
     CAR_PARKS_PUBLIC_BAYS = "/home/ncc/ncc-footfall-parking/analytics/vm-script/car_park_capacity.json" # todo uff
+    FOOTFALL_TIME_WINDOW_MINUTES = 60
 
 # logging
-logging.basicConfig(format='%(asctime)s %(funcName)s [%(lineno)d] %(message)s', level=logging.INFO)
+logging.basicConfig(format='%(asctime)s %(funcName)s [%(lineno)d] %(message)s', level=logging.DEBUG)
 
 # start
 logging.info('It is the beginning, is it not?')
@@ -48,23 +50,22 @@ def extract_footfall(sensor_name, response):
     logging.debug(f"{sensor_name};{response}")
     tmp = json.loads(response)
     out = dict()
-    total_people_count = 0
+    out['sensor_name'] = sensor_name
+    footfall_all = []
 
     # check that UO returned some data
     if len(tmp['sensors'][0]['data']) > 0:
         for record in tmp['sensors'][0]['data']['Walking North']:
-            total_people_count += record['Value']
+            footfall_all.append(record['Value'])
         for record in tmp['sensors'][0]['data']['Walking South']:
-            total_people_count += record['Value']
-        number_of_datapoints = len(tmp['sensors'][0]['data']['Walking North']) + len(tmp['sensors'][0]['data']['Walking South'])
-        average_people_count = total_people_count / number_of_datapoints
+            footfall_all.append(record['Value'])
     else:
         # end early - no datapoints returned; don't return 0 as activity level
         return(out)
     
-    out['sensor_name'] = sensor_name
-    out['number_of_datapoints'] = number_of_datapoints 
-    out['average_people_count'] = round(average_people_count, 1)
+    # format stats
+    out['number_of_datapoints'] = len(footfall_all)
+    out['average_people_count'] = round(np.mean(footfall_all), 1)
     return(out)
 
 def get_footfall_data(sensors, api_url):
@@ -72,9 +73,10 @@ def get_footfall_data(sensors, api_url):
     result = []
     for sensor in sensors:
         time_now = datetime.datetime.now()
-        end_time = datetime.datetime.now().strftime("%Y%m%d%H%m")
-        start_time = (time_now - datetime.timedelta(minutes=FOOTFALL_TIME_WINDOW_MINUTES)).strftime("%Y%m%d%H%m")
+        end_time = datetime.datetime.now().strftime("%Y%m%d%H%M")
+        start_time = (time_now - datetime.timedelta(minutes=FOOTFALL_TIME_WINDOW_MINUTES)).strftime("%Y%m%d%H%M")
         sensor_url = api_url.format(sensor_name = sensor, start_time = start_time, end_time = end_time)
+        logging.debug(sensor_url)
         try:
             contents = urllib.request.urlopen(sensor_url).read()
             out = extract_footfall(sensor, contents)
@@ -135,8 +137,8 @@ def get_city_activity(footfall): # todo record for easier mod
         if 'average_people_count' in record:
             total_footfall += record['average_people_count']
         # else: log problem todo
-    logging.info(f"total_footfall: {total_footfall}; footfall average: {footfall}")
-    total_footfall = total_footfall / len(record)    
+    logging.info(f"total_footfall: {total_footfall}; len(record): {len(record)}")
+    total_footfall = total_footfall / len(footfall)
     if total_footfall < 25:
         return(ACTIVITY_LEVELS[0])
     elif total_footfall < 100:
@@ -164,7 +166,7 @@ def format_car_parks(carparks, response_time):
 # ToDo - split city state from car park execution
 # ToDo - monitor lag in response time from UO
 # CAR PARKS
-# start the clock for car parks
+# # start the clock for car parks
 start_time = datetime.datetime.now()
 
 # pull the car parks data
@@ -197,19 +199,27 @@ if len(carpark_out[0]) > 0:
     # upload to container
     with open(local_file_name, "rb") as data:
         blob_client.upload_blob(data, overwrite = True)
+
+# persist locally
+car_out = []
+for carpark in carpark_out:
+    car_out.append(f"{carpark['name']}:{carpark['occupancy']}")
+if not LOCAL_DEV:
+    with open('/home/ncc/ncc-footfall-parking/analytics/vm-script/2007_carkparks_log.csv', 'a') as fOut:
+        fOut.print(",".join(car_out) + '\n')
 logging.info(carpark_out)
 
 # CITY STATE
 # pull all footfall data
 footfall_out = get_footfall_data(FOOTFALL_SENSOR_NAMES, FOOTFALL_API_URL)
+logging.debug(format_city_state(footfall_out, datetime.datetime.now() - start_time))
 
-# persist city state
+# # persist city state
 file_name = f"ncc-city-state-{datetime.datetime.now().isoformat()}.json".replace(':','-')
 if LOCAL_DEV:
     local_file_name = "out" + os.sep + file_name # todo uff
 else:
     local_file_name = "/home/ncc/ncc-footfall-parking/analytics/vm-script/out" + os.sep + file_name # todo uff
-
 
 # local copy
 city_state = format_city_state(footfall_out, datetime.datetime.now() - start_time)
@@ -235,9 +245,10 @@ if len(footfall_out[0]) > 0:
 
     # additional one liner
     if not LOCAL_DEV:
-        with open('/home/ncc/ncc-footfall-parking/analytics/vm-script/city_state_log.csv', 'a') as fOut:
-            fOut.write(f"{city_state['timestamp']},{city_state['city_state']},{city_state['footfall'][0]['average_people_count']},,{city_state['footfall'][1]['average_people_count']},{city_state['response_time_us']}\n")
+        with open('/home/ncc/ncc-footfall-parking/analytics/vm-script/2007_city_state_log.csv', 'a') as fOut:
+            fOut.write(f"{city_state['timestamp']},{city_state['city_state']},{city_state['footfall'][0]['average_people_count']},{city_state['footfall'][0]['number_of_datapoints']}," +
+            f"{city_state['footfall'][1]['average_people_count']},{city_state['footfall'][0]['number_of_datapoints']},{city_state['response_time_us']}\n")
 
 logging.info(footfall_out)
 
-logging.info(f"It is done: {city_state['response_time_us']} us")
+logging.info(f"It is done. City is {city_state['city_state']}, processing time: {city_state['response_time_us']} us")
