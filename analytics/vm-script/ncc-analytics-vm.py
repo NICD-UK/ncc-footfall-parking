@@ -206,7 +206,7 @@ for carpark in carpark_out:
     car_out.append(f"{carpark['name']}:{carpark['occupancy']}")
 if not LOCAL_DEV:
     with open('/home/ncc/ncc-footfall-parking/analytics/vm-script/2007_carkparks_log.csv', 'a') as fOut:
-        fOut.print(",".join(car_out) + '\n')
+        fOut.write(",".join(car_out) + '\n')
 logging.info(carpark_out)
 
 # CITY STATE
