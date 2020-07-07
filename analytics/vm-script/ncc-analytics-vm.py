@@ -65,7 +65,7 @@ def extract_footfall(sensor_name, response):
     
     # format stats
     out['number_of_datapoints'] = len(footfall_all) / 2
-    out['average_people_count'] = round(footfall_all / out['number_of_datapoints'], 1)
+    out['average_people_count'] = round(np.sum(footfall_all) / out['number_of_datapoints'], 1)
     return(out)
 
 def get_footfall_data(sensors, api_url):
