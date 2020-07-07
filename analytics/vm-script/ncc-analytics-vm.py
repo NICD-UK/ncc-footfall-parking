@@ -202,11 +202,12 @@ if len(carpark_out[0]) > 0:
 
 # persist locally
 car_out = []
+
 for carpark in carpark_out:
-    car_out.append(f"{carpark['name']}:{carpark['occupancy']}")
+    car_out.append(f"{carpark['name']}:{carpark['occupancy']}") 
 if not LOCAL_DEV:
     with open('/home/ncc/ncc-footfall-parking/analytics/vm-script/2007_carkparks_log.csv', 'a') as fOut:
-        out = f'{carpark_out["timestamp"]};{",".join(car_out)}\n'
+        out = f'{str(datetime.datetime.now().astimezone().isoformat())};{",".join(car_out)}\n'
         fOut.write(out)
 logging.info(carpark_out)
 
