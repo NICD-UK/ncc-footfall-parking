@@ -64,8 +64,8 @@ def extract_footfall(sensor_name, response):
         return(out)
     
     # format stats
-    out['number_of_datapoints'] = len(footfall_all)
-    out['average_people_count'] = round(np.mean(footfall_all), 1)
+    out['number_of_datapoints'] = len(footfall_all) / 2
+    out['average_people_count'] = round(footfall_all / out['number_of_datapoints'], 1)
     return(out)
 
 def get_footfall_data(sensors, api_url):
@@ -137,7 +137,7 @@ def get_city_activity(footfall): # todo record for easier mod
         if 'average_people_count' in record:
             total_footfall += record['average_people_count']
         # else: log problem todo
-    logging.info(f"total_footfall: {total_footfall}; len(record): {len(record)}")
+    logging.info(f"total_footfall: {total_footfall}; len(footfall): {len(footfall)}")
     total_footfall = total_footfall / len(footfall)
     if total_footfall < 25:
         return(ACTIVITY_LEVELS[0])
