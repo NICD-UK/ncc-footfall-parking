@@ -68,7 +68,7 @@ export default [
       "address": "Stowell Street, Newcastle upon Tyne, NE1 4XQ",
       "postcode": "NE1 4XQ",
       "district": "NE1",
-      "capacity": 250,
+      "capacity": 276,
       "location": [54.97261,-1.62011]
     },
     {
