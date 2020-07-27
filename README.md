@@ -2,7 +2,7 @@
 
 [![Dependabot badge](https://flat.badgen.net/dependabot/wbkd/webpack-starter?icon=dependabot)](https://dependabot.com/)
 
-A responspive single page web application for visualizing car parking data and footfall on Northumberland Street in Newcastle.
+A responsive single page web application for visualizing car parking data and footfall on Northumberland Street in Newcastle.
 
 ## Development Environment
 
